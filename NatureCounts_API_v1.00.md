@@ -263,12 +263,18 @@ Authentication not required.
 
 `/data/get_data`
 
-Obtain raw data for a given collection. This query requiers a single collection be specified as the `collection` attribute in the filter parameter, and the collection
+Obtain raw data for a given collection. This query requires a single collection be specified as the `collection` attribute in the filter parameter, and the collection
 must be either public, or accessible via the user's token (see the `list_permissions` entry point above).
 
-The client application must treat this as a paginated call: the response will be limited to a pre-determined number of records as defined by parameters (below).
-It should repeat the query as many times as necessary, using a new `lastRecord` parameter on each subsequent 
-query, until The response payload `results` object is empty or - if `numRecords` is in use - contains less than the `numRecords` parameter.
+The specific filter attributes for this call:
+ 
+| Parameter Name | Type | Explanation | Example |
+| -------------- | ---- | ----------- | ------- |
+| **collection** | String | A single collection codes | "ABATLAS1" |
+| **fields** | Vector of strings | Field names, if a subset of the standard fields is desired | ["ScientificName","InstitutionCode"] |
+| **bmdeVersion** | String | **Not supported yet** | "BMDE2.00" |
+| **ncFields** | Boolean | **Not supported yet** | true |
+
 
 Authentication not required.
 
@@ -282,33 +288,22 @@ Authentication not required.
 
 >Optional parameter: **requestId** - a request Id as a substitute for a filter structure (see below)
 
-
-
-The specific filter attributes for this call:
- 
-| Parameter Name | Type | Explanation | Example |
-| -------------- | ---- | ----------- | ------- |
-| **collection** | String | A single collection codes | "ABATLAS1" |
-| **fields** | Vector of strings | Field names, if a subset of the standard fields is desired | ["ScientificName","InstitutionCode"] |
-| **bmdeVersion** | String | **Not supported yet** | "BMDE2.00" |
-| **ncFields** | Boolean | **Not supported yet** | true |
-
-
 >**Example URL:** /api/data/raw_data?token=asdfasdf&filter={ ... }&startRecord=0&numRecords=1000
 
 The response payload will carry at least the `results` attribute.
 
-The results are paginated: the client **must** expect more data if the reuslt set was not empty and either:
+The client application must treat this as a paginated call and expect to repeat the query multiple times, with updated `lasRecord` values on each subsequent request.
+The client **must** expect more data if the reuslt set was not empty and either:
 
 1. The number of records in the result set was equal to the query value of `numRecords` (if used);
 2. Or the response payload included a `requestId` attribute (see below);
  
-In either of these cases, the client should expect another page of data, and should submit another request, including the `lastRecord` parameter.
+In either of these cases, the client should expect another page of data, and should submit another request, with an updated `lastRecord` parameter.
 
 Note that subsequent requests can use the `requestId` parameter as a substitute for the `filter` parameter. While not obligatory, this
-strategy is recommended as being most efficienct. An example query of this type would look like this:
+strategy is recommended efficiency. An example query of this type would look like this:
 
 >**Example URL:** /api/data/raw_data?token=asdfasdf&requestId=1g2h3j4k5l6&startRecord=13456&numRecords=1000
 
-Note that once a result set has been returned that is empty or less than the `numrecords` requested, the `requestId` will become invalid, since
+Once a result set has been returned that is empty or smaller than the `numrecords` requested, the `requestId` will become invalid, since
 this event signals that there are no more pages of data associated with the original filter set.
