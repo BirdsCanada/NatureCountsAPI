@@ -4,6 +4,13 @@ The goal of the API is to make NatureCounts data available to external client so
 It aims at replacing some of the R functions that were developed many years ago and require at direct ODBC connection to the database,
 which is protected by a firewall.
 
+### Table of Contents ###
+
+1. MetaData Entry Points
+2. [Data Exploration](#bmde-data-exploration)
+	1. Data Filtering
+	2. Data Entry Points
+
 The entrypoints described below will return a HTTP response status code 200 on success. In the event of an error the HTTP
 response code will reflect this, and the response payload will be a JSON Object with 3 attributes:
 
@@ -20,7 +27,9 @@ will be helpful in querying collection data, or interpretting the same.
 The response payload is a JSON object, whose attributes are vectors of data values, named for their column heading. 
 
 
-#### BMDE Versions ####
+### BMDE Versions ###
+
+`/metadata/bmde_versions`
 
 Returns a list of the BMDE standards versions available (e.g. BMDE2.00-ext is the extensive version containing all available fields,
 and BMDE-MKN-2.00 is a version designed for Monarch datasets). 
@@ -28,7 +37,9 @@ and BMDE-MKN-2.00 is a version designed for Monarch datasets).
 >**Example URL:** /api/metadata/bmde_versions
 
 
-## BMDE Fields ##
+### BMDE Fields ###
+
+`/metadata/bmde_fields`
 
 Get the list of field names associated with a particular BMDE version.
 
@@ -37,7 +48,9 @@ Required parameter: **version** - a version obtained from the previous call
 >**Example URL:** /api/metadata/bmde_fields?version=BMDE2.00
 
 
-## Projects ##
+### Projects ###
+
+`/metadata/projects`
 
 Returns a list of NatureCounts projects, with their id, name and project url.
 
@@ -46,7 +59,9 @@ Optional parameter: **lang** - the language preference [EN|FR], default EN
 >**Example URL:** /api/metadata/projects?lang=EN
 
 
-## Projects Metadata ##
+### Projects Metadata ###
+
+`/metadata/projects_metadata`
 
 Returns a more comprehensive list of project metadata. The list of fields included remains to be defined,
 but will likely at the very least include the terms and conditions and suggested citation statement.
@@ -56,7 +71,9 @@ Optional parameter: **lang** - the language preference [EN|FR], default EN
 >**Example URL:** /api/metadata/projects_metadata?lang=EN
 
 
-## Collections ##
+### Collections ###
+
+`/metadata/collections`
 
 Get a list of all available collections (datasets) in NatureCounts
 
@@ -65,7 +82,9 @@ Optional parameter: **lang** - the language preference [EN|FR], default EN
 >**Example URL:** /api/metadata/collections?lang=EN
 
 
-## Species ##
+### Species ###
+
+`/metadata/species`
 
 This query returns the list of species concepts recognized by NatureCounts. NatureCounts follows
 Clements taxonomy for birds, but also support other taxa (birds and other groups). 
@@ -73,14 +92,18 @@ Clements taxonomy for birds, but also support other taxa (birds and other groups
 >**Example URL:** /api/metadata/species
 
 
-## Species Codes Authority ##
+### Species Codes Authority ###
+
+`/metadata/species_code_authority`
 
 Returns a list of all species codes authorities recognized in NatureCounts
 
 >**Example URL:** /api/metadata/species_codes_authority
 
 
-## Species Codes ##
+### Species Codes ###
+
+`/metadata/species_codes`
 
 Returns a list of all species codes recognized in NatureCounts, for all authorities, or only a specific one.
 
@@ -89,21 +112,27 @@ Optional parameter: **authority** - the	authority to use resolving codes
 >**Example URL:** /api/metadata/species_codes?authority=BSCDATA
 
 
-## Country ##
+### Country ###
+
+`/metadata/country`
 
 Returns a list of all country codes recognized in NatureCounts and for which there are records.
 
 >**Example URL:** /api/metadata/country
 
 
-## State / Province ##
+### State / Province ###
+
+`/metadata/statprov`
 
 Returns a list of all state and province codes recognized in NatureCounts and for which there are records.
 
 >**Example URL:** /api/metadata/statprov
 
 
-## Subnational Codes ##
+### Subnational Codes ###
+
+`/metadata/subnat2`
 
 Returns a list of all subnational2 codes (e.g. counties) recognized in NatureCounts and for which there are records. 
 
@@ -116,7 +145,7 @@ Returns a list of all subnational2 codes (e.g. counties) recognized in NatureCou
 Data access is controlled at the level of collections. Read
 [a primer on data access](https://www.birdscanada.org/birdmon/default/nc_access_levels.jsp) for full details.
 
-The data query response payload will be a JSON Object with a single sub-object called 'results', carrying the data vectors. The
+The (successful) data query response payload will be a JSON Object with an attribute called `results`, carrying the data vectors. The
 response structure may also include other attributes, mentioned below.
 
 
@@ -143,30 +172,25 @@ Required parameter: **password** - the account password
 
 
 
-## Filtering Data ##
+### Filtering Data ###
 
 
 BMDE Data requests support filtering, as described in each entry point explanation below. Filters are submitted as a JSON object
-on the request, along with the token (if required); an example is shown:
+on the request, along with the token (if required); an typical request will look like this:
 
->**Example Data Request with filter**: /api/data/get_data?token=qwertyqwerty&filter={ }
+>**Example Data Request with filter**: /api/data/get_data?token=qwertyqwerty&filter={ ... }
 
 Details on the filter structure are found below.
 
-In addition, the responses to raw data requests are paginated: the client application must support this as described below.
 
-Filters are divided into two categories: Basic and Advanced.
-
-
-
-### Basic Filtering ###
+#### Basic Filtering ####
 
 The following optional filter parameters can be submitted to most of the BMDE Data entrypoints. All must be encoded as JSON Arrays (vectors), as
 shown in the example column.
 
 | Parameter Name | Type | Explanation | Example |
 | -------------- | ---- | ----------- | ------- |
-| **collection** | Vector of strings | Collection codes | ["ABATLAS1","ABATLAS2","BBS50"] |
+| **collections** | Vector of strings | Collection codes | ["ABATLAS1","ABATLAS2","BBS50"] |
 | **species** | Vector of integers | Species id's | [440,2700] |
 | **country** | Vector of strings | Country ISO codes | ["CA","US"] |
 | **statProv** | Vector of strings | State or Province ISO codes | ["ON","AB"] |
@@ -175,7 +199,7 @@ shown in the example column.
 | **subNat2** | Vector of strings | Subnational2 (e.g. county) codes | ["CA.ON.FR"] |
 
 
-### Advanced Filtering ###
+#### Advanced Filtering ####
 
 The following filters may not apply to all entrypoints:
 
@@ -194,19 +218,26 @@ The following filters may not apply to all entrypoints:
 
 See the Raw data entrypoint below for additional filtering applicable to that function only.
 
-### BMDE Data Entry Points ###
+----------
+
+## BMDE Data Entry Points ##
 
 ### List Permissions on Collections ###
 
-Returns a list of accessible data collections and permissions currently granted for each. The collection list will include public collections
-as well as those to which the user has explicit access.
+`/data/list_permissions`
 
->Required parameter: **token** - the session token to identify the user
+Returns a list of accessible data collections and permissions currently granted for each. If no token is supplied, the result list
+will show only those collections that are Level 5 (public). If a token is provided, the list will also include 
+collections to which the user has explicit access.
+
+>Optional parameter: **token** - the session token to identify the user
 
 >**Example URL:** /api/data/list_permissions?token=qwertyqwerty
 
 
 ### List Collections ###
+
+`/data/list_collections`
 
 Obtain a list of collection codes and some statistics about the number of records accessible,
 matching the filter criteria, for one or more dataset of AKN level 2 or more.
@@ -218,6 +249,8 @@ Authentication not required.
 
 ### List Species ###
 
+`/data/list_species`
+
 Obtain a list of species ID’s and some statistics about the number of records accessible, matching the search criteria,
 for any dataset of AKN level 2 or more.
 
@@ -228,42 +261,54 @@ Authentication not required.
 
 ### Get Raw Data ###
 
-Obtain data for a given collection, which must be either public, or accessible via the user's token.
-The client application must treat this as a paginated call: the response will be limited to a pre-determined number of records as defined by parameters (below).
-It should repeat the query as many times as necessary, using a new 'StartRecord' number on each subsequent 
-query, until The response payload 'results' object is empty or - if 'numRecords' is in use - contains less than the 'numRecords' parameter.
+`/data/get_data`
 
-The response will also include an attribute 'requestId' that can be used as a substitute for a filter JSON structure, once it has been submitted. This allows
-the client to submit the filter parameter only on the initial call, then to submit only the 'requestId' parameter as an index into the details
-of the query. Examples can be found below.
+Obtain raw data for a given collection. This query requiers a single collection be specified as the `collection` attribute in the filter parameter, and the collection
+must be either public, or accessible via the user's token (see the `list_permissions` entry point above).
+
+The client application must treat this as a paginated call: the response will be limited to a pre-determined number of records as defined by parameters (below).
+It should repeat the query as many times as necessary, using a new `lastRecord` parameter on each subsequent 
+query, until The response payload `results` object is empty or - if `numRecords` is in use - contains less than the `numRecords` parameter.
 
 Authentication not required.
 
->Required filter parameter: **collection** - a specific collection code
+>Required filter attribute: **collection** - a specific collection code
 
 >Optional parameter: **token** - required when accessing non-public collections
 
->Optional parameter: **startRecord** - a starting record_id, defaulting to 0
+>Optional parameter: **lastRecord** - the `last record_id` that the client received, defaulting to -1
 
 >Optional parameter: **numRecords** - the number of records to return, subject to an upper limit
 
->Optional parameter: **requestId** - a request Id as a substitute for a filter structure (see above)
+>Optional parameter: **requestId** - a request Id as a substitute for a filter structure (see below)
 
-There are additional filter parameters for this call:
+
+
+The specific filter attributes for this call:
  
 | Parameter Name | Type | Explanation | Example |
 | -------------- | ---- | ----------- | ------- |
 | **collection** | String | A single collection codes | "ABATLAS1" |
-| **fields** | Vector of strings | Field names, if a subset of the standard fields is desired | ["record_id","InstitutionCode"] |
-| **bmdeVersion** | String | ???? | "BMDE2.00" |
-| **ncFields** | Boolean | whether the non-BMDE fields are included in the response | true |
+| **fields** | Vector of strings | Field names, if a subset of the standard fields is desired | ["ScientificName","InstitutionCode"] |
+| **bmdeVersion** | String | **Not supported yet** | "BMDE2.00" |
+| **ncFields** | Boolean | **Not supported yet** | true |
 
 
 >**Example URL:** /api/data/raw_data?token=asdfasdf&filter={ ... }&startRecord=0&numRecords=1000
 
-The response payload can be used to determine the next startRecord value (one more than the highest record_id returned). The requestId can also be used 
-to submit more abbreviated queries as paging continues:
+The response payload will carry at least the `results` attribute.
+
+The results are paginated: the client **must** expect more data if the reuslt set was not empty and either:
+
+1. The number of records in the result set was equal to the query value of `numRecords` (if used);
+2. Or the response payload included a `requestId` attribute (see below);
+ 
+In either of these cases, the client should expect another page of data, and should submit another request, including the `lastRecord` parameter.
+
+Note that subsequent requests can use the `requestId` parameter as a substitute for the `filter` parameter. While not obligatory, this
+strategy is recommended as being most efficienct. An example query of this type would look like this:
 
 >**Example URL:** /api/data/raw_data?token=asdfasdf&requestId=1g2h3j4k5l6&startRecord=13456&numRecords=1000
 
-
+Note that once a result set has been returned that is empty or less than the `numrecords` requested, the `requestId` will become invalid, since
+this event signals that there are no more pages of data associated with the original filter set.
