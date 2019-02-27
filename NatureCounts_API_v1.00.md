@@ -270,7 +270,7 @@ The specific filter attributes for this call:
  
 | Parameter Name | Type | Explanation | Example |
 | -------------- | ---- | ----------- | ------- |
-| **collection** | String | A single collection codes | "ABATLAS1" |
+| **collection** | String | A single collection code | "ABATLAS1" |
 | **fields** | Vector of strings | Field names, if a subset of the standard fields is desired | ["ScientificName","InstitutionCode"] |
 | **bmdeVersion** | String | **Not supported yet** | "BMDE2.00" |
 | **ncFields** | Boolean | **Not supported yet** | true |
@@ -282,7 +282,7 @@ Authentication not required.
 
 >Optional parameter: **token** - required when accessing non-public collections
 
->Optional parameter: **lastRecord** - the `last record_id` that the client received, defaulting to -1
+>Optional parameter: **lastRecord** - the last `record_id` that the client received, defaulting to -1
 
 >Optional parameter: **numRecords** - the number of records to return, subject to an upper limit
 
@@ -293,7 +293,7 @@ Authentication not required.
 The response payload will carry at least the `results` attribute.
 
 The client application must treat this as a paginated call and expect to repeat the query multiple times, with updated `lastRecord` values on each subsequent request.
-The client **must** expect more data if the reuslt set was not empty and either:
+The client **must** expect more data if the result set was not empty and either:
 
 1. The number of records in the result set was equal to the query value of `numRecords` (if used);
 2. Or the response payload included a `requestId` attribute (see below);
