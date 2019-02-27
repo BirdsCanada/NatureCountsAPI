@@ -288,11 +288,11 @@ Authentication not required.
 
 >Optional parameter: **requestId** - a request Id as a substitute for a filter structure (see below)
 
->**Example URL:** /api/data/raw_data?token=asdfasdf&filter={ ... }&startRecord=0&numRecords=1000
+>**Example URL:** /api/data/raw_data?token=asdfasdf&filter={ ... }&lastRecord=0&numRecords=1000
 
 The response payload will carry at least the `results` attribute.
 
-The client application must treat this as a paginated call and expect to repeat the query multiple times, with updated `lasRecord` values on each subsequent request.
+The client application must treat this as a paginated call and expect to repeat the query multiple times, with updated `lastRecord` values on each subsequent request.
 The client **must** expect more data if the reuslt set was not empty and either:
 
 1. The number of records in the result set was equal to the query value of `numRecords` (if used);
@@ -301,9 +301,9 @@ The client **must** expect more data if the reuslt set was not empty and either:
 In either of these cases, the client should expect another page of data, and should submit another request, with an updated `lastRecord` parameter.
 
 Note that subsequent requests can use the `requestId` parameter as a substitute for the `filter` parameter. While not obligatory, this
-strategy is recommended efficiency. An example query of this type would look like this:
+strategy is recommended for efficiency. An example query of this type would look like this:
 
->**Example URL:** /api/data/raw_data?token=asdfasdf&requestId=1g2h3j4k5l6&startRecord=13456&numRecords=1000
+>**Example URL:** /api/data/raw_data?token=asdfasdf&requestId=1g2h3j4k5l6&lastRecord=13456&numRecords=1000
 
-Once a result set has been returned that is empty or smaller than the `numrecords` requested, the `requestId` will become invalid, since
+Once a result set has been returned that is empty or smaller than the `numRecords` requested, the `requestId` will become invalid, since
 this event signals that there are no more pages of data associated with the original filter set.
