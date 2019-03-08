@@ -27,12 +27,22 @@ will be helpful in querying collection data, or interpretting the same.
 The response payload is a JSON object, whose attributes are vectors of data values, named for their column heading. 
 
 
+### API Version ###
+
+`/api_version`
+
+Returns JSON response with attribute 'api_version', equals to the current api version (String). This same
+version string is returned as part of the response to a successful authentication request.
+
+>**Example URL:** /api/api_version
+
+
 ### BMDE Versions ###
 
 `/metadata/bmde_versions`
 
 Returns a list of the BMDE standards versions available (e.g. BMDE2.00-ext is the extensive version containing all available fields,
-and BMDE-MKN-2.00 is a version designed for Monarch datasets). Most datasets in NatureCounts are based on BMDE2.00.
+and BMDE-MKN-2.00 is a version designed for Monarch datasets). 
 
 >**Example URL:** /api/metadata/bmde_versions
 
@@ -75,7 +85,7 @@ Optional parameter: **lang** - the language preference [EN|FR], default EN
 
 `/metadata/collections`
 
-Get a list of all available collections (datasets) in NatureCounts, together with some basic data statistics, and the BMDE version they utilize.
+Get a list of all available collections (datasets) in NatureCounts
 
 Optional parameter: **lang** - the language preference [EN|FR], default EN
 
@@ -87,7 +97,7 @@ Optional parameter: **lang** - the language preference [EN|FR], default EN
 `/metadata/species`
 
 This query returns the list of species concepts recognized by NatureCounts. NatureCounts follows
-Clements taxonomy for birds, but also support other taxa (birds and other groups). A unique numeric (Integer) key is assigned to all taxononic concepts. Please note that taxonomy is being updated annually. You should refer to the [NatureCounts taxonomy primer]. (link needed)
+Clements taxonomy for birds, but also support other taxa (birds and other groups). 
 
 >**Example URL:** /api/metadata/species
 
@@ -96,7 +106,7 @@ Clements taxonomy for birds, but also support other taxa (birds and other groups
 
 `/metadata/species_code_authority`
 
-Returns a list of all species codes authorities recognized in NatureCounts. Please refer to the [NatureCounts taxonomy primer]. (link needed)
+Returns a list of all species codes authorities recognized in NatureCounts
 
 >**Example URL:** /api/metadata/species_codes_authority
 
@@ -105,7 +115,7 @@ Returns a list of all species codes authorities recognized in NatureCounts. Plea
 
 `/metadata/species_codes`
 
-Returns a list of all species codes recognized in NatureCounts, for all authorities, or only a specific one. Please refer to the [NatureCounts taxonomy primer]. (link needed)
+Returns a list of all species codes recognized in NatureCounts, for all authorities, or only a specific one.
 
 Optional parameter: **authority** - the	authority to use resolving codes
 
@@ -116,7 +126,7 @@ Optional parameter: **authority** - the	authority to use resolving codes
 
 `/metadata/country`
 
-Returns a list of all country codes recognized in NatureCounts and for which there are records. The codes generally follow [ISO-3166:2 standard](https://en.wikipedia.org/wiki/ISO_3166-2)
+Returns a list of all country codes recognized in NatureCounts and for which there are records.
 
 >**Example URL:** /api/metadata/country
 
@@ -125,7 +135,7 @@ Returns a list of all country codes recognized in NatureCounts and for which the
 
 `/metadata/statprov`
 
-Returns a list of all state and province codes (2-letter codes) recognized in NatureCounts and for which there are records.
+Returns a list of all state and province codes recognized in NatureCounts and for which there are records.
 
 >**Example URL:** /api/metadata/statprov
 
@@ -134,9 +144,55 @@ Returns a list of all state and province codes (2-letter codes) recognized in Na
 
 `/metadata/subnat2`
 
-Returns a list of all subnational2 codes (e.g. counties) recognized in NatureCounts and for which there are records. Subnational codes are created from a combination of the country code, the state/province code and a county specific code (e.g. CA.ON.NF = Canada, Ontario, Norfolk County). The boundaries are primarily based on the [GADM layer](https://gadm.org/) 
+Returns a list of all subnational2 codes (e.g. counties) recognized in NatureCounts and for which there are records. 
 
 >**Example URL:** /api/metadata/subnat2
+
+
+### Breeding Codes ###
+
+`/metadata/breeding_codes`
+
+Returns a list of all breeding codes.
+
+>**Example URL:** /api/metadata/breeding_codes
+
+
+### Protocols ###
+
+`/metadata/protocols`
+
+Returns a list of all protocols.
+
+>**Example URL:** /api/metadata/protocols
+
+
+### Protocol Types ###
+
+`/metadata/protocol_type`
+
+Returns a list of all protocol types.
+
+>**Example URL:** /api/metadata/protocol_type
+
+
+### Bird Conservation Regions ###
+
+`/metadata/bcr`
+
+Returns a list of all BCR's.
+
+>**Example URL:** /api/metadata/bcr
+
+
+### Important Bird Areas ###
+
+`/metadata/iba_sites`
+
+Returns a list of all IBA Sites.
+
+>**Example URL:** /api/metadata/iba_sites
+
 
 ----
 
@@ -154,13 +210,13 @@ response structure may also include other attributes, mentioned below.
 
 The API controls collection data access using a token that is generated when a user authenticates.
 The token has a limited life span (currently 20 days), so the client application should require user authentication 
-for each new session. Authentication is based on [NatureCounts login](https://www.birdscanada.org/birdmon/default/register.jsp). Registration is free.
+for each new session.
 
 A user may hold multiple valid tokens at a time, allowing them to work from more than one session (or device) at once.
 
 This entrypoint requires a login username and password, and if valid, returns a JSON object carrying
-a token with a 20 day validity period. The client application can then present this
-token as user credentials in the data access entry points, where required / desired.
+a token with a 20 day validity period, as well as the current api_version designation (String).
+The client application can then present the token as user credentials in the data access entry points, where applicable.
 
 Required parameter: **username** - the account username
 
@@ -282,7 +338,7 @@ Authentication not required.
 
 >Optional parameter: **token** - required when accessing non-public collections
 
->Optional parameter: **lastRecord** - the last `record_id` that the client received, defaulting to -1
+>Optional parameter: **lastRecord** - the highest `record_id` that the client received, defaulting to -1
 
 >Optional parameter: **numRecords** - the number of records to return, subject to an upper limit
 
