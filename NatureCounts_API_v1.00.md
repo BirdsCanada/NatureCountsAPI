@@ -6,10 +6,10 @@ which is protected by a firewall.
 
 ### Table of Contents ###
 
-1. MetaData Entry Points
+1. [MetaData Functions](#metadata-functions)
 2. [Data Exploration](#bmde-data-exploration)
-	1. Data Filtering
-	2. Data Entry Points
+	1. [Data Filtering](#fitering-data)
+	2. [BMDE Data Functions](#bmde-functions)
 
 The entrypoints described below will return a HTTP response status code 200 on success. In the event of an error the HTTP
 response code will reflect this, and the response payload will be a JSON Object with 3 attributes:
@@ -19,7 +19,7 @@ response code will reflect this, and the response payload will be a JSON Object 
 - **error_msg:** a short text explanation
 
 
-## MetaData Entry Points ##
+## MetaData Functions ##
 
 These entry points do not require authentication. Their purpose is to return descriptive information that
 will be helpful in querying collection data, or interpretting the same.
@@ -276,7 +276,7 @@ See the Raw data entrypoint below for additional filtering applicable to that fu
 
 ----------
 
-## BMDE Data Entry Points ##
+## BMDE Data Functions ##
 
 ### List Permissions on Collections ###
 
@@ -324,17 +324,19 @@ must be either public, or accessible via the user's token (see the `list_permiss
 
 The specific filter attributes for this call:
  
-| Parameter Name | Type | Explanation | Example |
-| -------------- | ---- | ----------- | ------- |
-| **collection** | String | A single collection code | "ABATLAS1" |
-| **fields** | Vector of strings | Field names, if a subset of the standard fields is desired | ["ScientificName","InstitutionCode"] |
-| **bmdeVersion** | String | **Not supported yet** | "BMDE2.00" |
-| **ncFields** | Boolean | **Not supported yet** | true |
+| Parameter Name | Type | Required | Explanation | Example |
+| -------------- | ---- | ---------| ----------- | ------- |
+| **collection** | String | yes | A single collection code | "ABATLAS1" |
+| **bmdeVersion** | String | yes | Can be one of the recognized BMDE verions, or selected form: (minimum\|core\|extended\|default\|custom) | "BMDE2.00" |
+| **fields** | Vector of strings | no | Field names, if a subset of the standard fields is desired | ["ScientificName","InstitutionCode"] |
+
 
 
 Authentication not required.
 
 >Required filter attribute: **collection** - a specific collection code
+
+>Required filter attribute: **bmdeVersion** - see below
 
 >Optional parameter: **token** - required when accessing non-public collections
 
@@ -346,7 +348,8 @@ Authentication not required.
 
 >**Example URL:** /api/data/raw_data?token=asdfasdf&filter={ ... }&lastRecord=0&numRecords=1000
 
-The response payload will carry at least the `results` attribute.
+The response payload will carry at least the `results` attribute. It may also include an attribute `bmdeVersion` specifying the explicit BMDE Versions used to
+construct the fields list.
 
 The client application must treat this as a paginated call and expect to repeat the query multiple times, with updated `lastRecord` values on each subsequent request.
 The client **must** expect more data if the result set was not empty and either:
@@ -363,3 +366,13 @@ strategy is recommended for efficiency. An example query of this type would look
 
 Once a result set has been returned that is empty or smaller than the `numRecords` requested, the `requestId` will become invalid, since
 this event signals that there are no more pages of data associated with the original filter set.
+
+##### BMDE Version Filter Attribute ####
+
+The filter attribute `bmdeVersion` is used to specify a set of fields to be return to the client. It's value can be a recognized BMDE version as returned
+by the api/metadata/bmde_versions query: the client can use either the explicit version name, or the shorthand if applicable.
+
+Alternatively, `bmdeVersion` can be 'default' which will return the fields normally associated with the collection you are querying.
+
+Finally, `bmdeVersion` can be set to 'custom' to retreive a subset of the fields normaly returned as 'default' fields. The specific
+fields must then be specified as a String vector in the fiter attribute 'fields'.
