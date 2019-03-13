@@ -8,8 +8,9 @@ which is protected by a firewall.
 
 1. [MetaData Functions](#metadata-functions)
 2. [Data Exploration](#bmde-data-exploration)
-	1. [Data Filtering](#fitering-data)
-	2. [BMDE Data Functions](#bmde-functions)
+	1. [Authentication](#authentication)
+	2. [Data Filtering](#fitering-data)
+	3. [BMDE Data Functions](#bmde-data-functions)
 
 The entrypoints described below will return a HTTP response status code 200 on success. In the event of an error the HTTP
 response code will reflect this, and the response payload will be a JSON Object with 3 attributes:
@@ -328,7 +329,7 @@ The specific filter attributes for this call:
 | -------------- | ---- | ---------| ----------- | ------- |
 | **collection** | String | yes | A single collection code | "ABATLAS1" |
 | **bmdeVersion** | String | yes | Can be one of the recognized BMDE verions, or selected form: (minimum\|core\|extended\|default\|custom) | "BMDE2.00" |
-| **fields** | Vector of strings | no | Field names, if a subset of the standard fields is desired | ["ScientificName","InstitutionCode"] |
+| **fields** | Vector of strings | no | Field names, if a subset of the standard fields is desired. This attribute is only recognized if `bmdeVersion` is set to 'custom' | ["ScientificName","InstitutionCode"] |
 
 
 
@@ -369,10 +370,11 @@ this event signals that there are no more pages of data associated with the orig
 
 ##### BMDE Version Filter Attribute ####
 
-The filter attribute `bmdeVersion` is used to specify a set of fields to be return to the client. It's value can be a recognized BMDE version as returned
+The filter attribute `bmdeVersion` is used to specify a set of fields to be returned to the client. It's value can be a recognized BMDE version as returned
 by the api/metadata/bmde_versions query: the client can use either the explicit version name, or the shorthand if applicable.
 
 Alternatively, `bmdeVersion` can be 'default' which will return the fields normally associated with the collection you are querying.
 
 Finally, `bmdeVersion` can be set to 'custom' to retreive a subset of the fields normaly returned as 'default' fields. The specific
-fields must then be specified as a String vector in the fiter attribute 'fields'.
+fields must then be specified as a String vector in the fiter attribute 'fields'. If the client specifies fields not part of the normal 'default' set
+those fields will be ignored in the query.
