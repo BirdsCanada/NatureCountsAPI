@@ -43,7 +43,7 @@ version string is returned as part of the response to a successful authenticatio
 `/metadata/bmde_versions`
 
 Returns a list of the BMDE standards versions available (e.g. BMDE2.00-ext is the extensive version containing all available fields,
-and BMDE-MKN-2.00 is a version designed for Monarch datasets). 
+and BMDE-MKN-2.00 is a version designed for Monarch datasets). Most datasets in NatureCounts are based on BMDE2.00.
 
 >**Example URL:** /api/metadata/bmde_versions
 
@@ -86,7 +86,7 @@ Optional parameter: **lang** - the language preference [EN|FR], default EN
 
 `/metadata/collections`
 
-Get a list of all available collections (datasets) in NatureCounts
+Get a list of all available collections (datasets) in NatureCounts, together with some basic data statistics, and the BMDE version they utilize.
 
 Optional parameter: **lang** - the language preference [EN|FR], default EN
 
@@ -98,7 +98,9 @@ Optional parameter: **lang** - the language preference [EN|FR], default EN
 `/metadata/species`
 
 This query returns the list of species concepts recognized by NatureCounts. NatureCounts follows
-Clements taxonomy for birds, but also support other taxa (birds and other groups). 
+Clements taxonomy for birds, but also support other taxa (birds and other groups). A unique numeric
+(Integer) key is assigned to all taxononic concepts. Please note that taxonomy is being updated annually.
+You should refer to the [NatureCounts taxonomy primer]. (link needed)
 
 >**Example URL:** /api/metadata/species
 
@@ -107,7 +109,8 @@ Clements taxonomy for birds, but also support other taxa (birds and other groups
 
 `/metadata/species_code_authority`
 
-Returns a list of all species codes authorities recognized in NatureCounts
+Returns a list of all species codes authorities recognized in NatureCounts.
+Please refer to the [NatureCounts taxonomy primer]. (link needed)
 
 >**Example URL:** /api/metadata/species_codes_authority
 
@@ -117,6 +120,7 @@ Returns a list of all species codes authorities recognized in NatureCounts
 `/metadata/species_codes`
 
 Returns a list of all species codes recognized in NatureCounts, for all authorities, or only a specific one.
+Please refer to the [NatureCounts taxonomy primer]. (link needed)
 
 Optional parameter: **authority** - the	authority to use resolving codes
 
@@ -128,6 +132,7 @@ Optional parameter: **authority** - the	authority to use resolving codes
 `/metadata/country`
 
 Returns a list of all country codes recognized in NatureCounts and for which there are records.
+The codes generally follow [ISO-3166:2 standard](https://en.wikipedia.org/wiki/ISO_3166-2)
 
 >**Example URL:** /api/metadata/country
 
@@ -145,7 +150,9 @@ Returns a list of all state and province codes recognized in NatureCounts and fo
 
 `/metadata/subnat2`
 
-Returns a list of all subnational2 codes (e.g. counties) recognized in NatureCounts and for which there are records. 
+Returns a list of all subnational2 codes (e.g. counties) recognized in NatureCounts and for which there are records.
+Subnational codes are created from a combination of the country code, the state/province code and a county specific code
+(e.g. CA.ON.NF = Canada, Ontario, Norfolk County). The boundaries are primarily based on the [GADM layer](https://gadm.org/)
 
 >**Example URL:** /api/metadata/subnat2
 
@@ -211,7 +218,8 @@ response structure may also include other attributes, mentioned below.
 
 The API controls collection data access using a token that is generated when a user authenticates.
 The token has a limited life span (currently 20 days), so the client application should require user authentication 
-for each new session.
+for each new session. Authentication is based on [NatureCounts login](https://www.birdscanada.org/birdmon/default/register.jsp).
+Registration is free.
 
 A user may hold multiple valid tokens at a time, allowing them to work from more than one session (or device) at once.
 
@@ -375,6 +383,6 @@ by the api/metadata/bmde_versions query: the client can use either the explicit 
 
 Alternatively, `bmdeVersion` can be 'default' which will return the fields normally associated with the collection you are querying.
 
-Finally, `bmdeVersion` can be set to 'custom' to retreive a subset of the fields normaly returned as 'default' fields. The specific
+Finally, `bmdeVersion` can be set to 'custom' to retrieve a subset of the fields normaly returned as 'default' fields. The specific
 fields must then be specified as a String vector in the fiter attribute 'fields'. If the client specifies fields not part of the normal 'default' set
 those fields will be ignored in the query.
