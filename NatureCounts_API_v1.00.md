@@ -9,8 +9,8 @@ which is protected by a firewall.
 1. [MetaData Functions](#metadata-functions)
 2. [Data Exploration](#bmde-data-exploration)
 	1. [Authentication](#authentication)
-	2. [Data Filtering](#fitering-data)
-	3. [BMDE Data Functions](#bmde-data-functions)
+	2. [Data Filtering](#filtering-data)
+3. [BMDE Data Functions](#bmde-data-functions)
 
 The entrypoints described below will return a HTTP response status code 200 on success. In the event of an error the HTTP
 response code will reflect this, and the response payload will be a JSON Object with 3 attributes:
