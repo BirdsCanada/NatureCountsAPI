@@ -271,6 +271,7 @@ The following filters may not apply to all entrypoints:
 | Parameter Name | Type | Explanation | Example |
 | -------------- | ---- | ----------- | ------- |
 | **siteCode** | Vector of strings | Site codes | |
+| **siteType** | String | Set to 'IBA' to see only IBA sites* | "IBA" |
 | **utmSquare** | Vector of stings | 7-letter UTM atlas squares | ["17TNH42"] |
 | **minLat** | Real number | Minimum latitude (decimal degrees) | 45.0000 |
 | **maxLat** | Real number | Maximum latitude (decimal degrees) | 47.4567 |
@@ -280,6 +281,8 @@ The following filters may not apply to all entrypoints:
 | **endYear** | Integer | Final year | 2013 |
 | **startDay** | Integer | Earliest day in year (1-366) | 300 |
 | **endDay** | Integer | Final day in year (1-366) | 350 |
+
+\* siteType is unnecessary if you have specified a siteCode value.
 
 See the Raw data entrypoint below for additional filtering applicable to that function only.
 
@@ -357,7 +360,7 @@ Authentication not required.
 
 >**Example URL:** /api/data/raw_data?token=asdfasdf&filter={ ... }&lastRecord=0&numRecords=1000
 
-The response payload will carry at least the `results` attribute. It may also include an attribute `bmdeVersion` specifying the explicit BMDE Versions used to
+The response payload will carry at least the `results` attribute. It may also include an attribute `bmdeVersion` specifying the explicit BMDE Version used to
 construct the fields list.
 
 The client application must treat this as a paginated call and expect to repeat the query multiple times, with updated `lastRecord` values on each subsequent request.
@@ -383,6 +386,6 @@ by the api/metadata/bmde_versions query: the client can use either the explicit 
 
 Alternatively, `bmdeVersion` can be 'default' which will return the fields normally associated with the collection you are querying.
 
-Finally, `bmdeVersion` can be set to 'custom' to retrieve a subset of the fields normaly returned as 'default' fields. The specific
-fields must then be specified as a String vector in the fiter attribute 'fields'. If the client specifies fields not part of the normal 'default' set
+Finally, `bmdeVersion` can be set to 'custom' to retrieve a subset of the fields normally returned as 'default' fields. The specific
+fields must then be specified as a String vector in the filter attribute 'fields'. If the client specifies fields not part of the normal 'default' set
 those fields will be ignored in the query.
