@@ -358,6 +358,8 @@ Authentication not required.
 
 >Optional parameter: **requestId** - a request Id as a substitute for a filter structure (see below)
 
+>Optional parameter: **webRequestId** - a request Id generated during a web-form data request (see below)
+
 >**Example URL:** /api/data/raw_data?token=asdfasdf&filter={ ... }&lastRecord=0&numRecords=1000
 
 The response payload will carry at least the `results` attribute. It may also include an attribute `bmdeVersion` specifying the explicit BMDE Version used to
@@ -379,6 +381,10 @@ strategy is recommended for efficiency. An example query of this type would look
 Once a result set has been returned that is empty or smaller than the `numRecords` requested, the `requestId` will become invalid, since
 this event signals that there are no more pages of data associated with the original filter set.
 
+If the `webRequestId` parameter is present, it will take precedence over the `requestId` parameter. The value must be a valid integer id generated as part of
+a web-form data request procedure. Full details on its usage are below.
+
+
 ##### BMDE Version Filter Attribute ####
 
 The filter attribute `bmdeVersion` is used to specify a set of fields to be returned to the client. It's value can be a recognized BMDE version as returned
@@ -389,3 +395,51 @@ Alternatively, `bmdeVersion` can be 'default' which will return the fields norma
 Finally, `bmdeVersion` can be set to 'custom' to retrieve a subset of the fields normally returned as 'default' fields. The specific
 fields must then be specified as a String vector in the filter attribute 'fields'. If the client specifies fields not part of the normal 'default' set
 those fields will be ignored in the query.
+
+### Web Request Data ##
+
+If the NatureCounts web forms are used to generate a request for data on collections that would not  be unavailable to the user, the user can use the R-client api
+to check on the status of those data requests, and to download the data once the requests are approved.
+
+### List Collections ###
+
+`/data/list_requests`
+
+Obtain a list of web requests, their current status and the record count for each. If a `webRequestId` is supplied, only the 
+status of that request will be returned.
+
+Authentication required.
+
+>Optional parameter: **webRequestid** - a specific web request id
+
+>Required parameter: **token** - the user's token
+
+>**Example URL:** /api/data/list_requests?topken=asdfasdf
+
+
+### Get Web Request Data ###
+
+`/data/get_data`
+
+This is a version of the `get_data` call described above, but with the required `webRequestid` parameter supplied. In this form, the only filter
+attributes that are used are `bmde_version` and `fields`.
+
+Obtain a list of web requests, their current status and the record count for each. If a `webRequestId` is supplied, only the 
+status of that request will be returned.
+
+Authentication required.
+
+>Required parameter: **webRequestid** - a specific web request id
+
+>Required parameter: **token** - the user's token
+
+>Optional parameter: **lastRecord** - the highest `record_id` that the client received, defaulting to -1
+
+>Optional parameter: **numRecords** - the number of records to return, subject to an upper limit
+
+>Optional parameter: **filter** - attributes for `bmde_version` and `fields` are honoured
+
+
+
+>**Example URL:** /api/data/get_data?topken=asdfasdf&webrequestId=123456
+
