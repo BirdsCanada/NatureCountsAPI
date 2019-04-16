@@ -11,6 +11,7 @@ which is protected by a firewall.
 	1. [Authentication](#authentication)
 	2. [Data Filtering](#filtering-data)
 3. [BMDE Data Functions](#bmde-data-functions)
+4. [Web Data Requests](#web-request-data)
 
 The entrypoints described below will return a HTTP response status code 200 on success. In the event of an error the HTTP
 response code will reflect this, and the response payload will be a JSON Object with 3 attributes:
@@ -410,7 +411,7 @@ status of that request will be returned.
 
 Authentication required.
 
->Optional parameter: **webRequestid** - a specific web request id
+>Optional parameter: **webRequestId** - a specific web request id
 
 >Required parameter: **token** - the user's token
 
@@ -421,15 +422,15 @@ Authentication required.
 
 `/data/get_data`
 
-This is a version of the `get_data` call described above, but with the required `webRequestid` parameter supplied. In this form, the only filter
+This is a version of the `get_data` call described above, but with the `webRequestId` parameter supplied. In this form, the only filter
 attributes that are used are `bmde_version` and `fields`.
 
-Obtain a list of web requests, their current status and the record count for each. If a `webRequestId` is supplied, only the 
-status of that request will be returned.
+Note that if the data request includes multiple collections, data will be returned
+only for those collections whose request status is approved.
 
 Authentication required.
 
->Required parameter: **webRequestid** - a specific web request id
+>Required parameter: **webRequestId** - a specific web request id
 
 >Required parameter: **token** - the user's token
 
