@@ -399,7 +399,7 @@ those fields will be ignored in the query.
 
 ### Web Request Data ##
 
-If the NatureCounts web forms are used to generate a request for data on collections that would not  be unavailable to the user, the user can use the R-client api
+If the NatureCounts web forms are used to generate a request for data on collections that would be unavailable to the user, the user can use the R-client api
 to check on the status of those data requests, and to download the data once the requests are approved.
 
 ### List Collections ###
