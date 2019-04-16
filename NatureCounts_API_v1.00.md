@@ -415,7 +415,7 @@ Authentication required.
 
 >Required parameter: **token** - the user's token
 
->**Example URL:** /api/data/list_requests?topken=asdfasdf
+>**Example URL:** /api/data/list_requests?token=asdfasdf
 
 
 ### Get Web Request Data ###
@@ -442,5 +442,5 @@ Authentication required.
 
 
 
->**Example URL:** /api/data/get_data?topken=asdfasdf&webrequestId=123456
+>**Example URL:** /api/data/get_data?token=asdfasdf&webrequestId=123456
 
