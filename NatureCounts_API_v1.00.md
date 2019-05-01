@@ -242,7 +242,7 @@ Required parameter: **password** - the account password
 
 
 BMDE Data requests support filtering, as described in each entry point explanation below. Filters are submitted as a JSON object
-on the request, along with the token (if required); an typical request will look like this:
+on the request, along with the token (where required); a typical request will look like this:
 
 >**Example Data Request with filter**: /api/data/get_data?token=qwertyqwerty&filter={ ... }
 
@@ -315,6 +315,9 @@ Authentication not required.
 
 >**Example URL:** /api/data/list_collections?filter={ ... }
 
+This entrypoint returns a `results` structure that lists records counts by collection name. If a token was supplied, it also returns
+a `requestId` that can be used to retrieve raw data via the `get_data` query (see below).
+
 
 ### List Species ###
 
@@ -332,8 +335,9 @@ Authentication not required.
 
 `/data/get_data`
 
-Obtain raw data for a given collection. This query requires a single collection be specified as the `collection` attribute in the filter parameter, and the collection
-must be either public, or accessible via the user's token (see the `list_permissions` entry point above).
+Obtain raw data for a given collection. This entrypoint requires authentication, and a `requestId` obtained by a prior `list_collections` call,
+ or by a web-based data request process (see below). The query requires a single collection be specified as the `collection` attribute in the filter parameter, and the collection
+must have been part of the original `collections` set used to create the `erquestId`.
 
 The specific filter attributes for this call:
  
@@ -345,45 +349,33 @@ The specific filter attributes for this call:
 
 
 
-Authentication not required.
+Authentication required.
 
 >Required filter attribute: **collection** - a specific collection code
 
 >Required filter attribute: **bmdeVersion** - see below
 
->Optional parameter: **token** - required when accessing non-public collections
+>Required parameter: **token** - required when accessing non-public collections
+
+>Required parameter: **requestId** - a request Id as a substitute for a filter structure (see below)
 
 >Optional parameter: **lastRecord** - the highest `record_id` that the client received, defaulting to -1
 
 >Optional parameter: **numRecords** - the number of records to return, subject to an upper limit
 
->Optional parameter: **requestId** - a request Id as a substitute for a filter structure (see below)
 
->Optional parameter: **webRequestId** - a request Id generated during a web-form data request (see below)
+>**Example URL:** /api/data/raw_data?token=asdfasdf&filter={"collection":"ABATLAS1"}&requestId=qwerty&lastRecord=0&numRecords=1000
 
->**Example URL:** /api/data/raw_data?token=asdfasdf&filter={ ... }&lastRecord=0&numRecords=1000
+The response payload will inlcude:
 
-The response payload will carry at least the `results` attribute. It may also include an attribute `bmdeVersion` specifying the explicit BMDE Version used to
-construct the fields list.
+> **requestId** - use in the next call to the query
+
+> **results** - the raw data vectors
 
 The client application must treat this as a paginated call and expect to repeat the query multiple times, with updated `lastRecord` values on each subsequent request.
-The client **must** expect more data if the result set was not empty and either:
+The client **must** expect more data if the number of records in the result set was equal to the query value of `numRecords` (if used). The 
+client should expect another page of data, and should submit another request, with an updated `lastRecord` parameter.
 
-1. The number of records in the result set was equal to the query value of `numRecords` (if used);
-2. Or the response payload included a `requestId` attribute (see below);
- 
-In either of these cases, the client should expect another page of data, and should submit another request, with an updated `lastRecord` parameter.
-
-Note that subsequent requests can use the `requestId` parameter as a substitute for the `filter` parameter. While not obligatory, this
-strategy is recommended for efficiency. An example query of this type would look like this:
-
->**Example URL:** /api/data/raw_data?token=asdfasdf&requestId=1g2h3j4k5l6&lastRecord=13456&numRecords=1000
-
-Once a result set has been returned that is empty or smaller than the `numRecords` requested, the `requestId` will become invalid, since
-this event signals that there are no more pages of data associated with the original filter set.
-
-If the `webRequestId` parameter is present, it will take precedence over the `requestId` parameter. The value must be a valid integer id generated as part of
-a web-form data request procedure. Full details on its usage are below.
 
 
 ##### BMDE Version Filter Attribute ####
