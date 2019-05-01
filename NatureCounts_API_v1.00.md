@@ -251,8 +251,7 @@ Details on the filter structure are found below.
 
 #### Basic Filtering ####
 
-The following optional filter parameters can be submitted to most of the BMDE Data entrypoints. All must be encoded as JSON Arrays (vectors), as
-shown in the example column.
+The following optional fields are submitted as attributes of the `filter` parameter, when calling the `list_collections` or `list_species` entrypoints.
 
 | Parameter Name | Type | Explanation | Example |
 | -------------- | ---- | ----------- | ------- |
@@ -263,14 +262,6 @@ shown in the example column.
 | **bcr** | Vector of strings | Bird conservation regions numbers | ["BCR.14"] |
 | **iba** | Vector of strings | IBA site codes | ["IBA.SK016","IBA.AB112","IBA.AB115"] |
 | **subNat2** | Vector of strings | Subnational2 (e.g. county) codes | ["CA.ON.FR"] |
-
-
-#### Advanced Filtering ####
-
-The following filters may not apply to all entrypoints:
-
-| Parameter Name | Type | Explanation | Example |
-| -------------- | ---- | ----------- | ------- |
 | **siteCode** | Vector of strings | Site codes | |
 | **siteType** | String | Set to 'IBA' to see only IBA sites* | "IBA" |
 | **utmSquare** | Vector of stings | 7-letter UTM atlas squares | ["17TNH42"] |
@@ -285,7 +276,6 @@ The following filters may not apply to all entrypoints:
 
 \* siteType is unnecessary if you have specified a siteCode value.
 
-See the Raw data entrypoint below for additional filtering applicable to that function only.
 
 ----------
 
@@ -336,8 +326,8 @@ Authentication not required.
 `/data/get_data`
 
 Obtain raw data for a given collection. This entrypoint requires authentication, and a `requestId` obtained by a prior `list_collections` call,
- or by a web-based data request process (see below). The query requires a single collection be specified as the `collection` attribute in the filter parameter, and the collection
-must have been part of the original `collections` set used to create the `erquestId`.
+or by a web-based data request process (see below). The query requires a single collection be specified as the `collection` attribute in the filter parameter, and the collection
+must have been part of the original `collections` set used to create the `requestId`.
 
 The specific filter attributes for this call:
  
@@ -350,10 +340,6 @@ The specific filter attributes for this call:
 
 
 Authentication required.
-
->Required filter attribute: **collection** - a specific collection code
-
->Required filter attribute: **bmdeVersion** - see below
 
 >Required parameter: **token** - required when accessing non-public collections
 
