@@ -4,6 +4,7 @@ The goal of the API is to make NatureCounts data available to external client so
 It aims at replacing some of the R functions that were developed many years ago and require at direct ODBC connection to the database,
 which is protected by a firewall.
 
+
 ### Table of Contents ###
 
 1. [MetaData Functions](#metadata-functions)
@@ -11,7 +12,7 @@ which is protected by a firewall.
 	1. [Authentication](#authentication)
 	2. [Data Filtering](#filtering-data)
 3. [BMDE Data Functions](#bmde-data-functions)
-4. [Web Data Requests](#web-request-data)
+4. [Listing Data Queries](#list-data-queries)
 
 The entrypoints described below will return a HTTP response status code 200 on success. In the event of an error the HTTP
 response code will reflect this, and the response payload will be a JSON Object with 3 attributes:
@@ -241,12 +242,13 @@ Required parameter: **password** - the account password
 ### Filtering Data ###
 
 
-BMDE Data requests support filtering, as described in each entry point explanation below. Filters are submitted as a JSON object
-on the request, along with the token (where required); a typical request will look like this:
+BMDE Data requests support filtering, as described in entry point explanations below. Filters are submitted as a JSON object
+on a `list_collections` request, along with the user token; a typical request will look like this:
 
->**Example Data Request with filter**: /api/data/get_data?token=qwertyqwerty&filter={ ... }
+>**Example Data Request with filter**: /api/data/list_collections?token=qwertyqwerty&filter={ ... }
 
-Details on the filter structure are found below.
+Once these filter attributes have been submitted, a `requestId` (returned by the `list_collections` entrypoint) is used to apply them to a `get_data` request. Details on 
+these mechanisms follow.
 
 
 #### Filter Attributes ####
@@ -294,6 +296,7 @@ collections to which the user has explicit access.
 >**Example URL:** /api/data/list_permissions?token=qwertyqwerty
 
 
+
 ### List Collections ###
 
 `/data/list_collections`
@@ -309,6 +312,7 @@ This entrypoint returns a `results` structure that lists records counts by colle
 a `requestId` that can be used to retrieve raw data via the `get_data` query (see below).
 
 
+
 ### List Species ###
 
 `/data/list_species`
@@ -319,6 +323,7 @@ for any dataset of AKN level 2 or more.
 Authentication not required.
 
 >**Example URL:** /api/data/list_species?filter={ ... }
+
 
 
 ### Get Raw Data ###
@@ -375,14 +380,15 @@ Finally, `bmdeVersion` can be set to 'custom' to retrieve a subset of the fields
 fields must then be specified as a String vector in the filter attribute 'fields'. If the client specifies fields not part of the normal 'default' set
 those fields will be ignored in the query.
 
-### List Data Queries ##
 
-Every successful data download by the R client results in a 'data Query' record being saved to the database, including the filter paramters used
+## List Data Queries ##
+
+Every successful data download by the R client results in a 'Data Query' record being saved to the database, including the filter paramters used
 in the query. Also, if the NatureCounts web forms are used to generate a request for data on collections that would be unavailable to the user,
 that query is saved and waits for approval.
 
-The API allows te client to list both past API data queries, and those originating on the webs forms. RequestIds are associated with all queries, allowing
-the client to re-run them at any time. For web form data requests, the status of the request collections is also returned.
+The API allows the client to list both past API data queries, and those originating on the webs forms. RequestIds are associated with all queries, allowing
+the client to re-run them at any time. The structure of the list rsponse is described in the next section.
 
 
 
@@ -395,9 +401,9 @@ status of that request will be returned.
 
 Authentication required.
 
->Optional parameter: **requestId** - a specific request id
-
 >Required parameter: **token** - the user's token
+
+>Optional parameter: **requestId** - a specific request id
 
 >**Example URL:** /api/data/list_requests?token=asdfasdf
 
@@ -406,9 +412,10 @@ the type of the request (api / web / mixed), the label on the request, and a vec
 each collection that is part of the dataRequest.
 
 
+
 ### Getting Data from Past Requests, or from Web Requests ###
 
-A query can be run using the `get_data` call described above, providing the `requestId` obtained in the `list_requests` call. The `get_data`
+A query can be (re-)run using the `get_data` call described above, providing the `requestId` obtained in the `list_requests` call. The `get_data`
 entrypoint works identically for past api queries and web form request queries. However, if the client submits a `get_data` call for a collection
 that has not been approved yet, the api will return an error.
 
