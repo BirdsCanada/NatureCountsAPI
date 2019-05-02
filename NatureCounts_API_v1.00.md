@@ -328,9 +328,11 @@ Authentication not required.
 
 ### Get Raw Data ###
 
+Obtain raw data for a given collection. 
+
 `/data/get_data`
 
-Obtain raw data for a given collection. This entrypoint requires authentication, and a `requestId` obtained by a prior `list_collections` call,
+This entrypoint requires authentication, and a `requestId` obtained by a prior `list_collections` call,
 or by a web-based data request process (see below). The query requires a single collection be specified as the `collection` attribute in the filter parameter, and the collection
 must have been part of the original `collections` set used to create the `requestId`.
 
@@ -346,20 +348,30 @@ The specific filter attributes for this call:
 
 Authentication required.
 
->Required parameter: **token** - required when accessing non-public collections
+>Required parameter: **token** - the user token
 
 >Required parameter: **requestId** - a request Id as a substitute for a filter structure (see below)
+
+>Required parameter: **filter** - the filter attributes (table above)
 
 >Optional parameter: **lastRecord** - the highest `record_id` that the client received, defaulting to -1
 
 >Optional parameter: **numRecords** - the number of records to return, subject to an upper limit
 
 
->**Example URL:** /api/data/raw_data?token=asdfasdf&filter={"collection":"ABATLAS1"}&requestId=qwerty&lastRecord=0&numRecords=1000
+>**Example URL:** /api/data/get_data?token=asdfasdf&filter={"collection":"ABATLAS1","bmdeVersion":"default"}&requestId=qwerty&lastRecord=0&numRecords=1000
 
-The response payload will inlcude:
+The response payload will include:
 
 > **requestId** - use in the next call to the query
+
+> **bmdeVersion** - the actual BMDE version used to generate the fields list
+
+> **collection** - the collection code as requested
+
+> **records** - the number of records returned
+
+> **requestOrigin** - the origen of this request \[api|web|mixed\]
 
 > **results** - the raw data vectors
 
