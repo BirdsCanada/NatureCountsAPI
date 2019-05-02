@@ -249,7 +249,7 @@ on the request, along with the token (where required); a typical request will lo
 Details on the filter structure are found below.
 
 
-#### Basic Filtering ####
+#### Filter Attributes ####
 
 The following optional fields are submitted as attributes of the `filter` parameter, when calling the `list_collections` or `list_species` entrypoints.
 
@@ -375,50 +375,44 @@ Finally, `bmdeVersion` can be set to 'custom' to retrieve a subset of the fields
 fields must then be specified as a String vector in the filter attribute 'fields'. If the client specifies fields not part of the normal 'default' set
 those fields will be ignored in the query.
 
-### Web Request Data ##
+### List Data Queries ##
 
-If the NatureCounts web forms are used to generate a request for data on collections that would be unavailable to the user, the user can use the R-client api
-to check on the status of those data requests, and to download the data once the requests are approved.
+Every successful data download by the R client results in a 'data Query' record being saved to the database, including the filter paramters used
+in the query. Also, if the NatureCounts web forms are used to generate a request for data on collections that would be unavailable to the user,
+that query is saved and waits for approval.
 
-### List Collections ###
+The API allows te client to list both past API data queries, and those originating on the webs forms. RequestIds are associated with all queries, allowing
+the client to re-run them at any time. For web form data requests, the status of the request collections is also returned.
+
+
+
+### List Queries ###
 
 `/data/list_requests`
 
-Obtain a list of web requests, their current status and the record count for each. If a `webRequestId` is supplied, only the 
+Obtain a list of all logged data queries, their current status and the record count for each. If a `requestId` is supplied, only the 
 status of that request will be returned.
 
 Authentication required.
 
->Optional parameter: **webRequestId** - a specific web request id
+>Optional parameter: **requestId** - a specific request id
 
 >Required parameter: **token** - the user's token
 
 >**Example URL:** /api/data/list_requests?token=asdfasdf
 
+The result object carries elements for individual requestIds. The content of these elements is an object with attributes for the date of the request,
+the type of the request (api / web / mixed), the label on the request, and a vector of collection objects that provide the approval status and the record count for 
+each collection that is part of the dataRequest.
 
-### Get Web Request Data ###
 
-`/data/get_data`
+### Getting Data from Past Requests, or from Web Requests ###
 
-This is a version of the `get_data` call described above, but with the `webRequestId` parameter supplied. In this form, the only filter
-attributes that are used are `bmde_version` and `fields`.
-
-Note that if the data request includes multiple collections, data will be returned
-only for those collections whose request status is approved.
-
-Authentication required.
-
->Required parameter: **webRequestId** - a specific web request id
-
->Required parameter: **token** - the user's token
-
->Optional parameter: **lastRecord** - the highest `record_id` that the client received, defaulting to -1
-
->Optional parameter: **numRecords** - the number of records to return, subject to an upper limit
-
->Optional parameter: **filter** - attributes for `bmde_version` and `fields` are honoured
+A query can be run using the `get_data` call described above, providing the `requestId` obtained in the `list_requests` call. The `get_data`
+entrypoint works identically for past api queries and web form request queries. However, if the client submits a `get_data` call for a collection
+that has not been approved yet, the api will return an error.
 
 
 
->**Example URL:** /api/data/get_data?token=asdfasdf&webrequestId=123456
+
 
