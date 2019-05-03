@@ -445,7 +445,7 @@ The following is presented as a best-practices user scenerio for harvesting data
 
 ### Building a Filter Set: Create a New Query ###
 
-1. Use the `list_collections` entrypoint to build collection record-counts for a given set of filter criteria: you are able to query for record counts collections whose data you may not have direct access. This process will return a `requestId` that is used to access raw data (see below).
+1. Use the `list_collections` entrypoint to build collection record-counts for a given set of filter criteria (you are able to query for record counts on collections even if you do not have direct access to the data in that collection). This process will return a `requestId` that is used to access raw data (see below).
 
 2. Use the `list_permissions` entrypoint to view a list of the collections whose raw data you can access: this list will only include collections you can access with your current permissions.
 
@@ -462,7 +462,7 @@ approval has been granted.
 Once you have a valid requestId, it can be submitted to the `get_data` entrypoint, along with a collection code, to download data. This request will be honoured only if
 the collection code was part of the original filter set used to build the query, and one of the following is true:
 
-1. You have direct access to that collection, based on your permissions
+1. You have direct access to that collection, based on your permissions, or
 
 2. You have submitted a web data download request, that has been approved by the collection's manager
 
@@ -491,5 +491,5 @@ If a query was built using the web form, it will show each collection for which 
 However, if a query was built using the API tools, it may not show every collection that was part of the original filter criteria. In order for a collection
 from the original filter criteria to be saved as part of the request, you must have run a successful data download on that collection during
 the original session. If during the original session you decided not to download the data, or if access to that data was refused (because of your access permissions),
-then that collection will not be saved as part of the request. In fact, if you did download **any** data for the request, it will not have been saved at all, and will not appear
+then that collection will not be saved as part of the request. In fact, if you did not download **any** data for the request, it will not have been saved at all, and will not appear
 in the `list_requests` response package.
