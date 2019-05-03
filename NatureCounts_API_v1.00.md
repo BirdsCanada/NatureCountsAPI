@@ -12,7 +12,8 @@ which is protected by a firewall.
 	1. [Authentication](#authentication)
 	2. [Data Filtering](#filtering-data)
 3. [BMDE Data Functions](#bmde-data-functions)
-4. [Listing Data Queries](#list-data-queries)
+4. [Exploring Saved Queries](#exploring-saved-queries)
+5. [Use Case Scenerio](#use-case-scenerio)
 
 The entrypoints described below will return a HTTP response status code 200 on success. In the event of an error the HTTP
 response code will reflect this, and the response payload will be a JSON Object with 3 attributes:
@@ -404,7 +405,7 @@ the client to re-run them at any time. The structure of the list rsponse is desc
 
 
 
-### List Queries ###
+### Exploirng Saved Queries ###
 
 `/data/list_requests`
 
@@ -434,4 +435,61 @@ that has not been approved yet, the api will return an error.
 
 
 
+## Use Case Scenerio ##
 
+
+
+The following is presented as a best-practices user scenerio for harvesting data from the AKN database API.
+
+
+
+### Building a Filter Set: Create a New Query ###
+
+1. Use the `list_collections` entrypoint to build collection record-counts for a given set of filter criteria: you are able to query for record counts collections whose data you may not have direct access. This process will return a `requestId` that is used to access raw data (see below).
+
+2. Use the `list_permissions` entrypoint to view a list of the collections whose raw data you can access: this list will only include collections you can access with your current permissions.
+
+If all of the collections that interest you are already on your list of accessible collections, you can continue to work
+through the API, as described immediately below. If some of the collections that interest you are not on your permissions list, you should
+go to the [web site form to build your query](https://www.birdscanada.org/birdmon/default/searchquery.jsp). The web site submission process will trigger requests for elevated permissions on those collections. The requests are 
+sent to the collection manager(s), who must approve your access. You will be issued a requestId, which can then be used in the steps below to access raw data for collections where
+approval has been granted.
+
+
+
+### Using Your Filtered Query to Access Data ###
+
+Once you have a valid requestId, it can be submitted to the `get_data` entrypoint, along with a collection code, to download data. This request will be honoured only if
+the collection code was part of the original filter set used to build the query, and one of the following is true:
+
+1. You have direct access to that collection, based on your permissions
+
+2. You have submitted a web data download request, that has been approved by the collection's manager
+
+The data download entrypoint should be used as a paginated query: specify the number of records per page, and repeat the query using the same requestId and collection code, as many times
+as needed. Each repeat should include the last record id you received from the previous query, as described above.
+
+If your original filter included multiple collection codes, repeat this step with each collection in that set.
+
+
+
+### Reviewing Your Queries ###
+
+You can see a list of your filtered queries by running the `list_requests` entrypoint. The data returned will include a field for the `requestOrigin`,
+which you can use to distinguish between web-form submitted queries (which will be type 'web' or 'mixed') and those managed through
+the API (which will be type 'api'). The access status of each collection in a request is also listed, as either 'approved' or 'pending'.
+
+You may re-run a data download for any listed request, by submitting the `requestId` to the `get_data` entrypoint. Only data for collections whose approval status is 'approved' will
+be available, however.
+
+
+
+#### The List of Saved Queries ####
+
+If a query was built using the web form, it will show each collection for which you requested access, along with the approval status for that collection.
+
+However, if a query was built using the API tools, it may not show every collection that was part of the original filter criteria. In order for a collection
+from the original filter criteria to be saved as part of the request, you must have run a successful data download on that collection during
+the original session. If during the original session you decided not to download the data, or if access to that data was refused (because of your access permissions),
+then that collection will not be saved as part of the request. In fact, if you did download **any** data for the request, it will not have been saved at all, and will not appear
+in the `list_requests` response package.
