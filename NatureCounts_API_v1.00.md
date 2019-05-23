@@ -12,7 +12,7 @@ which is protected by a firewall.
 	1. [Authentication](#authentication)
 	2. [Data Filtering](#filtering-data)
 3. [BMDE Data Functions](#bmde-data-functions)
-4. [Exploring Saved Queries](#exploring-saved-queries)
+4. [Listing Saved Queries](#listing-data-queries)
 5. [Use Case Scenerio](#use-case-scenerio)
 
 The entrypoints described below will return a HTTP response status code 200 on success. In the event of an error the HTTP
@@ -382,7 +382,7 @@ client should expect another page of data, and should submit another request, wi
 
 
 
-##### BMDE Version Filter Attribute ####
+#### BMDE Version Filter Attribute ####
 
 The filter attribute `bmdeVersion` is used to specify a set of fields to be returned to the client. It's value can be a recognized BMDE version as returned
 by the api/metadata/bmde_versions query: the client can use either the explicit version name, or the shorthand if applicable.
@@ -393,8 +393,25 @@ Finally, `bmdeVersion` can be set to 'custom' to retrieve a subset of the fields
 fields must then be specified as a String vector in the filter attribute 'fields'. If the client specifies fields not part of the normal 'default' set
 those fields will be ignored in the query.
 
+#### Releasing a Request Id #####
 
-## List Data Queries ##
+The client should call `release_request_id` as a final step after processing all `get_data` queries. This function ensures that the DataRequests record is updated into the
+database, making it available for future use. 
+
+Authentication required.
+
+>Required parameter: **token** - the user token
+
+>Required parameter: **requestId** - a request Id as a substitute for a filter structure (see below)
+
+>Optional parameter: **label** - the highest `record_id` that the client received, defaulting to -1
+
+
+>**Example URL:** /api/data/release_request_id?token=asdfasdf&label=TestLabel	
+
+
+
+## Listing Data Queries ##
 
 Every successful data download by the R client results in a 'Data Query' record being saved to the database, including the filter paramters used
 in the query. Also, if the NatureCounts web forms are used to generate a request for data on collections that would be unavailable to the user,
@@ -405,7 +422,7 @@ the client to re-run them at any time. The structure of the list rsponse is desc
 
 
 
-### Exploirng Saved Queries ###
+### Exploring Saved Queries ###
 
 `/data/list_requests`
 
@@ -421,8 +438,8 @@ Authentication required.
 >**Example URL:** /api/data/list_requests?token=asdfasdf
 
 The result object carries elements for individual requestIds. The content of these elements is an object with attributes for the date of the request,
-the type of the request (api / web / mixed), the label on the request, and a vector of collection objects that provide the approval status and the record count for 
-each collection that is part of the dataRequest.
+the type of the request (api / web / mixed), the label on the request, and a vector of collection objects that provide the approval status (approved / pending)
+and the record count for each collection that is part of the dataRequest.
 
 
 
@@ -445,7 +462,7 @@ The following is presented as a best-practices user scenerio for harvesting data
 
 ### Building a Filter Set: Create a New Query ###
 
-1. Use the `list_collections` entrypoint to build collection record-counts for a given set of filter criteria (you are able to query for record counts on collections even if you do not have direct access to the data in that collection). This process will return a `requestId` that is used to access raw data (see below).
+1. Use the `list_collections` entrypoint to build collection record-counts for a given set of filter criteria (you are able to query for record counts on collections even if you do not have direct access to the data in that collection). This process will return a `requestId` that is used to access raw data: see below; if you are signed in, it will also return the `access` you have to each collection (yes / no).
 
 2. Use the `list_permissions` entrypoint to view a list of the collections whose raw data you can access: this list will only include collections you can access with your current permissions.
 
