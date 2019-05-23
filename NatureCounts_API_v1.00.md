@@ -404,7 +404,7 @@ Authentication required.
 
 >Required parameter: **requestId** - a request Id as a substitute for a filter structure (see below)
 
->Optional parameter: **label** - the highest `record_id` that the client received, defaulting to -1
+>Optional parameter: **label** - a string to be assigned to the data request: will be displayed in `list_requests` response
 
 
 >**Example URL:** /api/data/release_request_id?token=asdfasdf&label=TestLabel	
@@ -488,6 +488,7 @@ as needed. Each repeat should include the last record id you received from the p
 
 If your original filter included multiple collection codes, repeat this step with each collection in that set.
 
+Once all data has been downloaded, call the `release_request_id` function to update the database with your query details.
 
 
 ### Reviewing Your Queries ###
