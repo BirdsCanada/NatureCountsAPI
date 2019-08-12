@@ -294,6 +294,8 @@ collections to which the user has explicit access.
 
 >Optional parameter: **token** - the session token to identify the user
 
+>Optional parameter: **info** - statement describing the intended use of the data
+
 >**Example URL:** /api/data/list_permissions?token=qwertyqwerty
 
 
