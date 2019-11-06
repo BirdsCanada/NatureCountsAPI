@@ -66,11 +66,9 @@ Required parameter: **version** - a version obtained from the previous call
 
 `/metadata/projects`
 
-Returns a list of NatureCounts projects, with their id, name and project url.
+Returns a list of NatureCounts projects, with their id, name (EN and FR), and project url.
 
-Optional parameter: **lang** - the language preference [EN|FR], default EN
-
->**Example URL:** /api/metadata/projects?lang=EN
+>**Example URL:** /api/metadata/projects
 
 
 ### Projects Metadata ###
@@ -80,9 +78,7 @@ Optional parameter: **lang** - the language preference [EN|FR], default EN
 Returns a more comprehensive list of project metadata. The list of fields included remains to be defined,
 but will likely at the very least include the terms and conditions and suggested citation statement.
 
-Optional parameter: **lang** - the language preference [EN|FR], default EN
-
->**Example URL:** /api/metadata/projects_metadata?lang=EN
+>**Example URL:** /api/metadata/projects_metadata
 
 
 ### Collections ###
@@ -91,9 +87,7 @@ Optional parameter: **lang** - the language preference [EN|FR], default EN
 
 Get a list of all available collections (datasets) in NatureCounts, together with some basic data statistics, and the BMDE version they utilize.
 
-Optional parameter: **lang** - the language preference [EN|FR], default EN
-
->**Example URL:** /api/metadata/collections?lang=EN
+>**Example URL:** /api/metadata/collections
 
 
 ### Species ###
@@ -101,7 +95,7 @@ Optional parameter: **lang** - the language preference [EN|FR], default EN
 `/metadata/species`
 
 This query returns the list of species concepts recognized by NatureCounts. NatureCounts follows
-Clements taxonomy for birds, but also support other taxa (birds and other groups). A unique numeric
+Clements taxonomy for birds, but also supportS other taxa (birds and other groups). A unique numeric
 (Integer) key is assigned to all taxononic concepts. Please note that taxonomy is being updated annually.
 You should refer to the [NatureCounts taxonomy primer]. (link needed)
 
@@ -236,7 +230,7 @@ Required parameter: **password** - the account password
 
 >**Example URL:** /api/data/authenticate?username=asdfasdf&password=qwerty
 
->**Example Response:** {"token":"1234567890qwerty"}
+>**Example Response:** {"token":"1234567890qwerty,"api_version":"2019.01"}
 
 
 
@@ -374,7 +368,7 @@ The response payload will include:
 
 > **records** - the number of records returned
 
-> **requestOrigin** - the origen of this request \[api|web|mixed\]
+> **requestOrigin** - the origin of this request \[api|web|mixed\]
 
 > **results** - the raw data vectors
 
@@ -420,7 +414,7 @@ in the query. Also, if the NatureCounts web forms are used to generate a request
 that query is saved and waits for approval.
 
 The API allows the client to list both past API data queries, and those originating on the webs forms. RequestIds are associated with all queries, allowing
-the client to re-run them at any time. The structure of the list rsponse is described in the next section.
+the client to re-run them at any time. The structure of the list response is described in the next section.
 
 
 
@@ -440,8 +434,8 @@ Authentication required.
 >**Example URL:** /api/data/list_requests?token=asdfasdf
 
 The result object carries elements for individual requestIds. The content of these elements is an object with attributes for the date of the request,
-the type of the request (api / web / mixed), the label on the request, and a vector of collection objects that provide the approval status (approved / pending)
-and the record count for each collection that is part of the dataRequest.
+the type of the request (api / web / mixed), the label on the request, a vector of filter attributes associated with the request,
+and a vector of collection objects that provide a) the requestStatus and b) the record count for each collection that is part of the dataRequest.
 
 
 
