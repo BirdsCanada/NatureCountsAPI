@@ -361,9 +361,9 @@ Returns detailed information on a specific protocol associated with a project:
 
 ### Protocol Custom Fields ###
 
-Returns detailed information on a specific protocol associated with a project:
+Returns detailed information on a dynamic protocol fields associated with a project:
 
-> /api/mobile/protocolCustom?projectId=1007&protocolId=95
+> /api/mobile/protocolCustomVars?projectId=1007&protocolId=95
 
 
 **Additional Parameter(s):**
