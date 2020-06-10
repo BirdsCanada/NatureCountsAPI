@@ -1,509 +1,702 @@
-# NatureCounts API Version 1.0 #
+# NatureCounts Mobile App API Verson 1.0 #
 
-The goal of the API is to make NatureCounts data available to external client software and services.
-It aims at replacing some of the R functions that were developed many years ago and require at direct ODBC connection to the database,
-which is protected by a firewall.
+This set of entrypoints is designed to serve the needs of NatureCounts mobile app.
+
+All queries are over HTTPS  as either GET or POST requests. Query responses are JSON object,
+mostly structured as a 'data frame': attribute names are the data
+field names, and attribute values are vectors of field values.
+
+Use the following host to test against the current sandbox environment:
+
+> https://sandbox.birdscanada.org
+
 
 
 ### Table of Contents ###
 
-1. [MetaData Functions](#metadata-functions)
-2. [Data Exploration](#bmde-data-exploration)
+1. [Authentication and User Profile](#authentication-and-user-profile)
 	1. [Authentication](#authentication)
-	2. [Data Filtering](#filtering-data)
-3. [BMDE Data Functions](#bmde-data-functions)
-4. [Listing Saved Queries](#listing-data-queries)
-5. [Use Case Scenerio](#use-case-scenerio)
+	2. [User Profile](#user-profile)
+	3. [Project Registration](#project-registration)
+2. [API and Data Version](#api-and-data-version)
+3. [API Last Modified Times Bundle](#api-last-modified-times-bundle)
+4. [Errors](#errors)
+5. [Reference Data](#reference-data)
+6. [Data Submission](#data-submission)
+	1. [Adding a Site](#add-a-site)
+	2. [Checklist Submission](#checklist-submission)
 
-The entrypoints described below will return a HTTP response status code 200 on success. In the event of an error the HTTP
-response code will reflect this, and the response payload will be a JSON Object with 3 attributes:
 
-- **error:** an [http response code](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes) matching the one in the response header
-- **entryPoint:** a text representation of the entry point that generated the error
-- **error_msg:** a short text explanation
+## Authentication and User Profile ##
 
+User identification is accomplished by including a token as a request parameter. The
+procedure to obtain a token is described below.
 
-## MetaData Functions ##
+Note that user registration is supported through the website form available here:
 
-These entry points do not require authentication. Their purpose is to return descriptive information that
-will be helpful in querying collection data, or interpretting the same.
+[https://www.birdscanada.org/birdmon/default/register.jsp](https://www.birdscanada.org/birdmon/default/register.jsp)
 
-The response payload is a JSON object, whose attributes are vectors of data values, named for their column heading. 
-
-
-### API Version ###
-
-`/api_version`
-
-Returns JSON response with attribute 'api_version', equals to the current api version (String). This same
-version string is returned as part of the response to a successful authentication request.
-
->**Example URL:** /api/api_version
-
-
-### BMDE Versions ###
-
-`/metadata/bmde_versions`
-
-Returns a list of the BMDE standards versions available (e.g. BMDE2.00-ext is the extensive version containing all available fields,
-and BMDE-MKN-2.00 is a version designed for Monarch datasets). Most datasets in NatureCounts are based on BMDE2.00.
-
->**Example URL:** /api/metadata/bmde_versions
-
-
-### BMDE Fields ###
-
-`/metadata/bmde_fields`
-
-Get the list of field names associated with a particular BMDE version.
-
-Required parameter: **version** - a version obtained from the previous call
-
->**Example URL:** /api/metadata/bmde_fields?version=BMDE2.00
-
-
-### Projects ###
-
-`/metadata/projects`
-
-Returns a list of NatureCounts projects, with their id, name (EN and FR), and project url.
-
->**Example URL:** /api/metadata/projects
-
-
-### Projects Metadata ###
-
-`/metadata/projects_metadata`
-
-Returns a more comprehensive list of project metadata. The list of fields included remains to be defined,
-but will likely at the very least include the terms and conditions and suggested citation statement.
-
->**Example URL:** /api/metadata/projects_metadata
-
-
-### Collections ###
-
-`/metadata/collections`
-
-Get a list of all available collections (datasets) in NatureCounts, together with some basic data statistics, and the BMDE version they utilize.
-
->**Example URL:** /api/metadata/collections
-
-
-### Species ###
-
-`/metadata/species`
-
-This query returns the list of species concepts recognized by NatureCounts. NatureCounts follows
-Clements taxonomy for birds, but also supportS other taxa (birds and other groups). A unique numeric
-(Integer) key is assigned to all taxononic concepts. Please note that taxonomy is being updated annually.
-You should refer to the [NatureCounts taxonomy primer]. (link needed)
-
->**Example URL:** /api/metadata/species
-
-
-### Species Codes Authority ###
-
-`/metadata/species_code_authority`
-
-Returns a list of all species codes authorities recognized in NatureCounts.
-Please refer to the [NatureCounts taxonomy primer]. (link needed)
-
->**Example URL:** /api/metadata/species_codes_authority
-
-
-### Species Codes ###
-
-`/metadata/species_codes`
-
-Returns a list of all species codes recognized in NatureCounts, for all authorities, or only a specific one.
-Please refer to the [NatureCounts taxonomy primer]. (link needed)
-
-Optional parameter: **authority** - the	authority to use resolving codes
-
->**Example URL:** /api/metadata/species_codes?authority=BSCDATA
-
-
-### Country ###
-
-`/metadata/country`
-
-Returns a list of all country codes recognized in NatureCounts and for which there are records.
-The codes generally follow [ISO-3166:2 standard](https://en.wikipedia.org/wiki/ISO_3166-2)
-
->**Example URL:** /api/metadata/country
-
-
-### State / Province ###
-
-`/metadata/statprov`
-
-Returns a list of all state and province codes recognized in NatureCounts and for which there are records.
-
->**Example URL:** /api/metadata/statprov
-
-
-### Subnational Codes ###
-
-`/metadata/subnat2`
-
-Returns a list of all subnational2 codes (e.g. counties) recognized in NatureCounts and for which there are records.
-Subnational codes are created from a combination of the country code, the state/province code and a county specific code
-(e.g. CA.ON.NF = Canada, Ontario, Norfolk County). The boundaries are primarily based on the [GADM layer](https://gadm.org/)
-
->**Example URL:** /api/metadata/subnat2
-
-
-### Breeding Codes ###
-
-`/metadata/breeding_codes`
-
-Returns a list of all breeding codes.
-
->**Example URL:** /api/metadata/breeding_codes
-
-
-### Protocols ###
-
-`/metadata/protocols`
-
-Returns a list of all protocols.
-
->**Example URL:** /api/metadata/protocols
-
-
-### Protocol Types ###
-
-`/metadata/protocol_type`
-
-Returns a list of all protocol types.
-
->**Example URL:** /api/metadata/protocol_type
-
-
-### Bird Conservation Regions ###
-
-`/metadata/bcr`
-
-Returns a list of all BCR's.
-
->**Example URL:** /api/metadata/bcr
-
-
-### Important Bird Areas ###
-
-`/metadata/iba_sites`
-
-Returns a list of all IBA Sites.
-
->**Example URL:** /api/metadata/iba_sites
-
-
-----
-
-## BMDE Data Exploration ##
-
-Data access is controlled at the level of collections. Read
-[a primer on data access](https://www.birdscanada.org/birdmon/default/nc_access_levels.jsp) for full details.
-
-The (successful) data query response payload will be a JSON Object with an attribute called `results`, carrying the data vectors. The
-response structure may also include other attributes, mentioned below.
-
-
-
-#### Authentication ####
-
-The API controls collection data access using a token that is generated when a user authenticates.
-The token has a limited life span (currently 20 days), so the client application should require user authentication 
-for each new session. Authentication is based on [NatureCounts login](https://www.birdscanada.org/birdmon/default/register.jsp).
 Registration is free.
+
+
+### Authentication ###
+
+The API controls data access and submission using a token with a limited life span (currently 20 days).
+Authentication is based on [NatureCounts login](https://www.birdscanada.org/birdmon/default/register.jsp).
 
 A user may hold multiple valid tokens at a time, allowing them to work from more than one session (or device) at once.
 
 This entrypoint requires a login username and password, and if valid, returns a JSON object carrying
-a token with a 20 day validity period, as well as the current api_version designation (String).
-The client application can then present the token as user credentials in the data access entry points, where applicable.
+a token with a 20 day validity period, as well as the current `api_version` designation (String).
+The client application must then present the token as user credentials in subsequent entrypoints.
 
 Required parameter: **username** - the account username
 
 Required parameter: **password** - the account password
 
->**Example URL:** /api/data/authenticate?username=asdfasdf&password=qwerty
+>**Example URL:** /api/mobile/authenticate?username=asdfasdf&password=qwerty
 
 >**Example Response:** {"token":"1234567890qwerty,"api_version":"2019.01"}
 
+Note that the api_version attribute can be used to validate future versions of the Mobile App.
 
 
-### Filtering Data ###
+### User Profile ###
 
 
-BMDE Data requests support filtering, as described in entry point explanations below. Filters are submitted as a JSON object
-on a `list_collections` request, along with the user token; a typical request will look like this:
+Returns the profile associated with the token.
 
->**Example Data Request with filter**: /api/data/list_collections?token=qwertyqwerty&filter={ ... }
-
-Once these filter attributes have been submitted, a `requestId` (returned by the `list_collections` entrypoint) is used to apply them to a `get_data` request. Details on 
-these mechanisms follow.
+> /api/mobile/user?token=asdfasdf
 
 
-#### Filter Attributes ####
+**Return JSON attributes:**
 
-The following optional fields are submitted as attributes of the `filter` parameter, when calling the `list_collections` or `list_species` entrypoints.
-
-| Parameter Name | Type | Explanation | Example |
-| -------------- | ---- | ----------- | ------- |
-| **collections** | Vector of strings | Collection codes | ["ABATLAS1","ABATLAS2","BBS50"] |
-| **species** | Vector of integers | Species id's | [440,2700] |
-| **country** | Vector of strings | Country ISO codes | ["CA","US"] |
-| **statProv** | Vector of strings | State or Province ISO codes | ["ON","AB"] |
-| **bcr** | Vector of strings | Bird conservation regions numbers | ["BCR.14"] |
-| **iba** | Vector of strings | IBA site codes | ["IBA.SK016","IBA.AB112","IBA.AB115"] |
-| **subNat2** | Vector of strings | Subnational2 (e.g. county) codes | ["CA.ON.FR"] |
-| **siteCode** | Vector of strings | Site codes | |
-| **siteType** | String | Set to 'IBA' to see only IBA sites* | "IBA" |
-| **utmSquare** | Vector of stings | 7-letter UTM atlas squares | ["17TNH42"] |
-| **minLat** | Real number | Minimum latitude (decimal degrees) | 45.0000 |
-| **maxLat** | Real number | Maximum latitude (decimal degrees) | 47.4567 |
-| **minLong** | Real number | Minimum latitude (decimal degrees) | -87.9987 |
-| **maxLong** | Real number | Minimum latitude (decimal degrees) | -87.4565 |
-| **startYear** | Integer | Earliest year | 2012 |
-| **endYear** | Integer | Final year | 2013 |
-| **startDay** | Integer | Earliest day in year (1-366) | 300 |
-| **endDay** | Integer | Final day in year (1-366) | 350 |
-
-\* siteType is unnecessary if you have specified a siteCode value.
-
-
-----------
-
-## BMDE Data Functions ##
-
-### List Permissions on Collections ###
-
-`/data/list_permissions`
-
-Returns a list of accessible data collections and permissions currently granted for each. If no token is supplied, the result list
-will show only those collections that are Level 5 (public). If a token is provided, the list will also include 
-collections to which the user has explicit access.
-
->Optional parameter: **token** - the session token to identify the user
-
->Optional parameter: **info** - statement describing the intended use of the data
-
->**Example URL:** /api/data/list_permissions?token=qwertyqwerty
+| Attribute | Notes |
+| --------- | ----- |
+| login_name | The login name |
+| last_name | The surname |
+| first_name | The firstname |
+| email | The email address |
 
 
 
-### List Collections ###
-
-`/data/list_collections`
-
-Obtain a list of collection codes and some statistics about the number of records accessible,
-matching the filter criteria, for one or more dataset of AKN level 2 or more.
-
-Authentication not required.
-
->**Example URL:** /api/data/list_collections?filter={ ... }
-
-This entrypoint returns a `results` structure that lists records counts by collection name. If a token was supplied, it also returns
-a `requestId` that can be used to retrieve raw data via the `get_data` query (see below).
 
 
+### Project Registration ###
 
-### List Species ###
+Project registration may require that the project administrator authorizes the registration.
+A user's status in a project is returned as part of the response to the `/api/mobile/userProjects`
+entrypoint (see below).
 
-`/data/list_species`
+A user registration request is triggred by the following:
 
-Obtain a list of species ID’s and some statistics about the number of records accessible, matching the search criteria,
-for any dataset of AKN level 2 or more.
+> /api/mobile/projectRegister?token=asdfasdf&projectId=95
 
-Authentication not required.
-
->**Example URL:** /api/data/list_species?filter={ ... }
+| Parameter | Type | Required | Notes |
+| --------- | ---- | -------- | ----- |
+| token | String | Yes | The authentication token |
+| projectId | Integer | Yes | The project to which the user will be registered |
+| lang | String | No | A 2-letter language code, defaulting to EN |
 
 
 
-### Get Raw Data ###
+## API and Data Version ##
 
-Obtain raw data for a given collection. 
+Returns api and data version attributes.
 
-`/data/get_data`
+> /api/mobile/dataVersion
 
-This entrypoint requires authentication, and a `requestId` obtained by a prior `list_collections` call,
-or by a web-based data request process (see below). The query requires a single collection be specified as the `collection` attribute in the filter parameter, and the collection
-must have been part of the original `collections` set used to create the `requestId`.
+Authenticated: No
 
-The specific filter attributes for this call:
+**Return JSON attributes:**
+
+| Attribute | Notes |
+| --------- | ----- |
+| api_version | The API version will normally not change, but may be used in future to signal stale Mobile App version |
+| data_version | If this attribute changes, all cached Reference data should be updated before the user interacts with the App |
+
+The `api_version` value can be used in future to validate Mobile App verson compatibility.
+
+The `data_version` parameter should be stored and then used to signal that a cached data refresh is required. If the `data_version`
+has changed, then all reference data should be updated. This will not occur frequently.
+
+
+
+## API Last Modified Times Bundle ##
+
+Returns a set of entrypoints and parameters that should be used to
+refresh local cache with modified data.
+
+
+**Precise description of this data package to be added shortly.**
+
+> /api/mobile/sync?projectIds=1007,1009&ifModifiedSince=2019-12-15T15:23:12Z
+
+Authenticated: Yes
+
+**Parameters**
+
+| Parameter | Type | Required | Notes |
+| --------- | ---- | -------- | ----- |
+| projectIds | String | Yes | A comma delimated list of project Ids |
+| ifModifiedSince | String | No | A ISO-8601 formatted datetime (eg: 2020-01-12T15:30:23Z) |
+
+**Return JSON attributes:**
+
+
+| Attribute | Type | Notes |
+| --------- | ---- | ----- |
+| entryPoint | String | The entry point suffix to call |
+| projectId | Integer | A project Id |
+| checklistId | Integer | A checklist Id |
+| statprov | Integer | A 2-letter province code |
+| protocolId | Integer | A protocol Id |
+| regionId | Integer | A region Id |
+
+Any attributes that are present and not null should be used to:
+
+1. delete records from appropriate tables in the local cache
+2. query the api to get replacement records for those deleted.
+
+
+
+
+## Errors ##
+
+Errors generated in the API will result in a JSON encoded error structure,
+returned with an appropriate HTTP error status. 
+
+**Return JSON attributes:**
+
+| Attribute | Notes |
+| --------- | ----- |
+| entryPoint | The api entry point that was queried |
+| error | An http error code: also present as the response 'Status Code' |
+| msgCode | A character code for this error. Lowercase letters and dashes only. |
+| errorMsgs | An array of textual error message(s), detailing the condition |
+
+You may retrieve the current error codes and messages with the following entrypoint.
+
+> /api/mobile/errorCodes?token=asdfasdf
+
+
+
+## Reference Data ##
+
+
+
+Reference data should be cached locally in the app, with a provision for periodic updates (weekely, etc?) and
+for a complete forced refresh. The `data_version` parameter returned by the `/api/mobile/dataVersion` entrypoint above should be
+checked against a stored value: if this value changes, a complete refresh of Reference Data is in order.
+
+Reference data are returned as a JSON object with a single element `'items'`, which
+is an array of JSON objects. Each object corresponds to a single data record.
+
+
+Reference Data queries do not require user authentication, but may include a `lang` 
+parameter. If the `lang` paramter is not provided, it will default to `EN`.
+
+**Common Parameters**
+
+| Parameter | Type | Required | Notes |
+| --------- | ---- | -------- | ----- |
+| lang | String | No | A 2-letter language code, defaulting to EN |
+
+
+
+
+### Projects ###
+
+Return a list of all projects relevant to the mobile app:
+
+> /api/mobile/projects?lang=EN
+
+
+
+
+### Provinces ###
+
+Returns a list of Canadian Provinces with their 2-letter codes:
+
+> /api/mobile/provinces?lang=EN
+
+
+
+
+
+### Projects Provinces ###
+
+Return a list of provinces associated with all projects:
+
+> /api/mobile/projectsProvinces?lang=EN
+
+
+
+
+
+### Regions ###
+
+Returns a list of regions with their region ID's:
+
+> /api/mobile/regions?lang=EN
+
+
+
+
+### User Projects ###
+
+
+Returns the projects to which the user is registered, along with a status.
+
+> /api/mobile/userProjects?lang=EN	
+
+
+
+
+
+
+
+
+
+
+### Species ###
+
+Returns a list of species:
+
+> /api/mobile/species?lang=EN
+
+
+
+### Species Groups ###
+
+Returns a list of species groups:
+
+> /api/mobile/speciesGroups?lang=EN
+
  
-| Parameter Name | Type | Required | Explanation | Example |
-| -------------- | ---- | ---------| ----------- | ------- |
-| **collection** | String | yes | A single collection code | "ABATLAS1" |
-| **bmdeVersion** | String | yes | Can be one of the recognized BMDE verions, or selected form: (minimum\|core\|extended\|default\|custom) | "BMDE2.00" |
-| **fields** | Vector of strings | no | Field names, if a subset of the standard fields is desired. This attribute is only recognized if `bmdeVersion` is set to 'custom' | ["ScientificName","InstitutionCode"] |
+### Species Codes ###
 
+Returns a list of 4-letter Species Codes:
 
+> /api/mobile/speciesCodes?lang=EN
 
-Authentication required.
 
->Required parameter: **token** - the user token
+### Species Status Symbols ###
 
->Required parameter: **requestId** - a request Id as a substitute for a filter structure (see below)
+Returns status symbols for species:
 
->Required parameter: **filter** - the filter attributes (table above)
+> /api/mobile/speciesStatusSymbols?lang=EN
 
->Optional parameter: **lastRecord** - the highest `record_id` that the client received, defaulting to -1
 
->Optional parameter: **numRecords** - the number of records to return, subject to an upper limit
+### Species EBIRD Codes ###
 
+Returns a list of species codes from the EBIRD checklist:
 
->**Example URL:** /api/data/get_data?token=asdfasdf&filter={"collection":"ABATLAS1","bmdeVersion":"default"}&requestId=qwerty&lastRecord=0&numRecords=1000
+> /api/mobile/speciesEbird?lang=EN
 
-The response payload will include:
 
-> **requestId** - use in the next call to the query
+### Species EBIRD Limits ###
 
-> **bmdeVersion** - the actual BMDE version used to generate the fields list
 
-> **collection** - the collection code as requested
+Returns a list of limits for species in an EBIRD checklist:
 
-> **records** - the number of records returned
+> /api/mobile/speciesEbirdLimits?lang=EN&checlistId=CL23742
 
-> **requestOrigin** - the origin of this request \[api|web|mixed\]
 
-> **results** - the raw data vectors
 
-The client application must treat this as a paginated call and expect to repeat the query multiple times, with updated `lastRecord` values on each subsequent request.
-The client **must** expect more data if the number of records in the result set was equal to the query value of `numRecords` (if used). The 
-client should expect another page of data, and should submit another request, with an updated `lastRecord` parameter.
+**Additional Parameter(s):**
 
+| Parameter | Type | Required | Notes |
+| --------- | ---- | -------- | ----- |
+| checklistId | String | No | An Ebird id (eg: CL23472) |
+| statprov | String | No | A 2-letter province code |
 
 
-#### BMDE Version Filter Attribute ####
+### Breeding Codes ###
 
-The filter attribute `bmdeVersion` is used to specify a set of fields to be returned to the client. It's value can be a recognized BMDE version as returned
-by the api/metadata/bmde_versions query: the client can use either the explicit version name, or the shorthand if applicable.
+Returns a list of breeding evidence codes:
 
-Alternatively, `bmdeVersion` can be 'default' which will return the fields normally associated with the collection you are querying.
+> /api/mobile/breedingCodes?lang=EN
 
-Finally, `bmdeVersion` can be set to 'custom' to retrieve a subset of the fields normally returned as 'default' fields. The specific
-fields must then be specified as a String vector in the filter attribute 'fields'. If the client specifies fields not part of the normal 'default' set
-those fields will be ignored in the query.
 
-#### Releasing a Request Id #####
 
-The client should call `release_request_id` as a final step after processing all `get_data` queries. This function ensures that the DataRequests record is updated into the
-database, making it available for future use. 
+### Species Invalid Breeding Evidence Codes ###
 
-Authentication required.
+Returns a list of invalid breeding evidence codes for species:
 
->Required parameter: **token** - the user token
+> /api/mobile/speciesInvalidBreedingEvidence?lang=EN
 
->Required parameter: **requestId** - a request Id as a substitute for a filter structure (see below)
 
->Optional parameter: **label** - a string to be assigned to the data request: will be displayed in `list_requests` response
 
+### Project Protocols ###
 
->**Example URL:** /api/data/release_request_id?token=asdfasdf&label=TestLabel	
+Returns protocol ID's associated with a project:
 
+> /api/mobile/projectProtocols?lang=EN&projectId=1007
 
 
-## Listing Data Queries ##
 
-Every successful data download by the R client results in a 'Data Query' record being saved to the database, including the filter paramters used
-in the query. Also, if the NatureCounts web forms are used to generate a request for data on collections that would be unavailable to the user,
-that query is saved and waits for approval.
+**Additional Parameter(s):**
 
-The API allows the client to list both past API data queries, and those originating on the webs forms. RequestIds are associated with all queries, allowing
-the client to re-run them at any time. The structure of the list response is described in the next section.
+| Parameter | Type | Required | Notes |
+| --------- | ---- | -------- | ----- |
+| projectId | Integer | Yes | A project ID |
 
 
+### Protocol Details ###
 
-### Exploring Saved Queries ###
+Returns detailed information on a specific protocol associated with a project:
 
-`/data/list_requests`
+> /api/mobile/protocolDetails?lang=EN&projectId=1007&protocolId=95
 
-Obtain a list of all logged data queries, their current status and the record count for each. If a `requestId` is supplied, only the 
-status of that request will be returned.
 
-Authentication required.
+**Additional Parameter(s):**
 
->Required parameter: **token** - the user's token
+| Parameter | Type | Required | Notes |
+| --------- | ---- | -------- | ----- |
+| projectId | Integer | Yes | A project ID |
+| protocolId | Integer | Yes | A protocol ID |
 
->Optional parameter: **requestId** - a specific request id
 
->**Example URL:** /api/data/list_requests?token=asdfasdf
 
-The result object carries elements for individual requestIds. The content of these elements is an object with attributes for the date of the request,
-the type of the request (api / web / mixed), the label on the request, a vector of filter attributes associated with the request,
-and a vector of collection objects that provide a) the requestStatus and b) the record count for each collection that is part of the dataRequest.
+### Protocol Custom Fields ###
 
+Returns detailed information on a specific protocol associated with a project:
 
+> /api/mobile/protocolCustom?projectId=1007&protocolId=95
 
-### Getting Data from Past Requests, or from Web Requests ###
 
-A query can be (re-)run using the `get_data` call described above, providing the `requestId` obtained in the `list_requests` call. The `get_data`
-entrypoint works identically for past api queries and web form request queries. However, if the client submits a `get_data` call for a collection
-that has not been approved yet, the api will return an error.
+**Additional Parameter(s):**
 
+| Parameter | Type | Required | Notes |
+| --------- | ---- | -------- | ----- |
+| projectId | Integer | Yes | A project ID |
+| protocolId | Integer | Yes | A protocol ID |
 
 
 
-## Use Case Scenerio ##
 
 
 
-The following is presented as a best-practices user scenerio for harvesting data from the AKN database API.
+### Protocol Intervals ###
 
+Returns information on a specific protocol intervals:
 
+> /api/mobile/protocolIntervals?lang=EN&projectId=1007&protocolId=95
 
-### Building a Filter Set: Create a New Query ###
 
-1. Use the `list_collections` entrypoint to build collection record-counts for a given set of filter criteria (you are able to query for record counts on collections even if you do not have direct access to the data in that collection). This process will return a `requestId` that is used to access raw data: see below; if you are signed in, it will also return the `access` you have to each collection (yes / no).
+**Additional Parameter(s):**
 
-2. Use the `list_permissions` entrypoint to view a list of the collections whose raw data you can access: this list will only include collections you can access with your current permissions.
+| Parameter | Type | Required | Notes |
+| --------- | ---- | -------- | ----- |
+| projectId | Integer | Yes | A project ID |
+| protocolId | Integer | Yes | A protocol ID |
 
-If all of the collections that interest you are already on your list of accessible collections, you can continue to work
-through the API, as described immediately below. If some of the collections that interest you are not on your permissions list, you should
-go to the [web site form to build your query](https://www.birdscanada.org/birdmon/default/searchquery.jsp). The web site submission process will trigger requests for elevated permissions on those collections. The requests are 
-sent to the collection manager(s), who must approve your access. You will be issued a requestId, which can then be used in the steps below to access raw data for collections where
-approval has been granted.
 
 
 
-### Using Your Filtered Query to Access Data ###
+### Protocol Types ###
 
-Once you have a valid requestId, it can be submitted to the `get_data` entrypoint, along with a collection code, to download data. This request will be honoured only if
-the collection code was part of the original filter set used to build the query, and one of the following is true:
+Returns details relevant for specific protocols:
 
-1. You have direct access to that collection, based on your permissions, or
+> /api/mobile/protocolTypes?lang=EN&projectId=1007&protocolId=95
 
-2. You have submitted a web data download request, that has been approved by the collection's manager
 
-The data download entrypoint should be used as a paginated query: specify the number of records per page, and repeat the query using the same requestId and collection code, as many times
-as needed. Each repeat should include the last record id you received from the previous query, as described above.
+**Additional Parameter(s):**
 
-If your original filter included multiple collection codes, repeat this step with each collection in that set.
+| Parameter | Type | Required | Notes |
+| --------- | ---- | -------- | ----- |
+| projectId | Integer | Yes | A project ID |
+| protocolId | Integer | Yes | A protocol ID |
 
-Once all data has been downloaded, call the `release_request_id` function to update the database with your query details.
 
 
-### Reviewing Your Queries ###
 
-You can see a list of your filtered queries by running the `list_requests` entrypoint. The data returned will include a field for the `requestOrigin`,
-which you can use to distinguish between web-form submitted queries (which will be type 'web' or 'mixed') and those managed through
-the API (which will be type 'api'). The access status of each collection in a request is also listed, as either 'approved' or 'pending'.
 
-You may re-run a data download for any listed request, by submitting the `requestId` to the `get_data` entrypoint. Only data for collections whose approval status is 'approved' will
-be available, however.
 
+### Protocol Species ###
 
+Returns species appropriate for a specific protocol:
 
-#### The List of Saved Queries ####
+> /api/mobile/protocolsSpecies?lang=EN&protocolId=95
 
-If a query was built using the web form, it will show each collection for which you requested access, along with the approval status for that collection.
 
-However, if a query was built using the API tools, it may not show every collection that was part of the original filter criteria. In order for a collection
-from the original filter criteria to be saved as part of the request, you must have run a successful data download on that collection during
-the original session. If during the original session you decided not to download the data, or if access to that data was refused (because of your access permissions),
-then that collection will not be saved as part of the request. In fact, if you did not download **any** data for the request, it will not have been saved at all, and will not appear
-in the `list_requests` response package.
+
+**Additional Parameter(s):**
+
+| Parameter | Type | Required | Notes |
+| --------- | ---- | -------- | ----- |
+| protocolId | Integer | Yes | A protocol ID |
+| projectId | Integer | No | A project ID |
+
+
+
+
+
+### Province Species ###
+
+Returns species appropriate for a province:
+
+> /api/mobile/speciesProvince?lang=EN&statprov=ON
+
+
+
+**Additional Parameter(s):**
+
+| Parameter | Type | Required | Notes |
+| --------- | ---- | -------- | ----- |
+| statprov | String | Yes | A 2-letter province code |
+
+
+
+### Species Region ###
+
+Returns species appropriate for a region within a province:
+
+> /api/mobile/speciesRegion?lang=EN&statprov=ON&regionId=15
+
+
+**Additional Parameter(s):**
+
+| Parameter | Type | Required | Notes |
+| --------- | ---- | -------- | ----- |
+| statprov | String | Yes | A 2-letter province code |
+| regionId | Integer | No	| A region ID |
+
+
+
+### Sites by Coordinates ###
+
+Returns information about project sites within a bounding box:
+
+> /api/mobile/sitesCoordinates?lang=EN&statprov=ON&regionId=15
+
+**Additional Parameter(s):**
+
+| Parameter | Type | Required | Notes |
+| --------- | ---- | -------- | ----- |
+| projectId | Integer | Yes | A project ID |
+| locType | String | Yes | A location type (e.g.: EBIRD) |
+| swLat | Float | Yes | The decimal latitude of the south-west corner of the bounding box |
+| swLon | Float | Yes | The decimal longitude of the south-west corner of the bounding box |
+| neLat | Float | Yes | The decimal latitude of the north-east corner of the bounding box |
+| neLon | Float | Yes | The decimal longitude of the north-east corner of the bounding box |
+
+
+
+
+
+### Sites by Regions ###
+
+Returns information about project sites within a region:
+
+> /api/mobile/sitesRegions?lang=EN&projectId=1007&locType=EBIRD&statprov=ON&regionId=15
+
+
+
+**Additional Parameter(s):**
+
+| Parameter | Type | Required | Notes |
+| --------- | ---- | -------- | ----- |
+| projectId | Integer | Yes | A project ID |
+| locType | String | Yes | A location type (e.g.: EBIRD) |
+| statprov | String | Yes | A 2-letter province code |
+| regionId | Integer | Yes | A region ID |
+
+
+
+### UTM Squares by Region ###
+
+Returns information about project sites within a region:
+
+> /api/mobile/utmSquares?lang=EN&projectId=1007&statprov=ON&regionId=15
+
+
+
+**Additional Parameter(s):**
+
+| Parameter | Type | Required | Notes |
+| --------- | ---- | -------- | ----- |
+| projectId | Integer | Yes | A project ID |
+| statprov | String | Yes | A 2-letter province code |
+| regionId | Integer | Yes | A region ID |
+
+
+
+
+### Sites by Square ###
+
+Returns information about sites within a specific UTM square:
+
+> /api/mobile/sitesSquares?lang=EN&projectId=1007&locType=EBIRD&utmSquare=L2291607
+
+
+
+**Additional Parameter(s):**
+
+| Parameter | Type | Required | Notes |
+| --------- | ---- | -------- | ----- |
+| projectId | Integer | Yes | A project ID |
+| locType | String | Yes | A location type (e.g.: EBIRD) |
+| utmSquare | String | Yesy | A utm square identifier |
+
+
+
+
+### Find a Square ###
+
+Find a UTM square from a decimal longitude and latitude:
+
+> /api/mobile/findSquare?lang=EN&lon=-76.5050&lat=44.7366
+
+
+
+**Additional Parameter(s):**
+
+| Parameter | Type | Required | Notes |
+| --------- | ---- | -------- | ----- |
+| lon | Float | Yes | A decimal longitude |
+| lat | Float | Yes | A decimal latitude |
+
+
+
+
+
+## Data Submission #
+
+Submissions will be by HTTP POST.
+
+
+
+
+### Add a Site ###
+
+Not available yet....
+
+
+### Checklist Submission ###
+
+> /api/mobile/submitChecklist
+
+A checklist submission must be by http POST, with the following variables:
+
+| Parameter | Type | Required | Notes |
+| --------- | ---- | -------- | ----- |
+| token | String | Yes | The user's token |
+| projectId | Integer | Yes | A decimal project ID |
+| trace | Integer | No | A value greater than one turns on tracing for development team |
+| checklist | JSON Object | Yes | JSON structure of type CHECKLIST_JSON (see below) |
+
+
+The response to a valid checklist submisson event:
+
+| Parameter | Type | Notes |
+| --------- | ---- | ----- |
+| status | String | Normally: 'success' |
+| formId | Integer | The record ID, whether newly created or existing |
+
+
+The response to an invalid checklist submisson has not yet been defined......
+
+
+**The CHECKLIST_JSON structure:**
+
+| Attribute | Type | Required | Notes |
+| --------- | ---- | -------- | ----- |
+| obsDate | String | Yes | The observation date in ISO format (eg: 2020-01-25) |
+| nObservers | Integer | No | Number of observers (default: 1) |
+| utmSquare | String | No | The utm square as 7-character code, if applicable |
+| statprov | String | No | 2-character province code |
+| regionId | Integer | No | Region ID |
+| ebirdChecklistId | String | No | eBird checklist ID used to validate this checklist, when applicable |
+| protocolId | Integer | Yes | Protocol ID |
+| track | JSON Array | No | A vector of JSON objects of type TRACK_JSON (when the track feature is enabled) |
+| isComplete | Boolean | No | Set to true if checklist reports every species detected |
+| stations | JSON Array | Yes | A vector of JSON objects of type STATION_JSON |
+
+**The TRACK_JSON structure:**
+
+| Attribute | Type | Required | Notes |
+| --------- | ---- | -------- | ----- |
+| longitude | Float | Yes | Decimal longitude coordinate recorded from the GPS  |
+| latitude | Float | Yes | Decimal latitude coordinate recorded from the GPS |
+| altitude | Float | Yes | Altitude (m) coordinate recorded from the GPS |
+| timestamp | Float | Yes | Unix timestamp recorded from the GPS |
+
+
+**The STATION_JSON structure:**
+
+| Attribute | Type | Required | Notes |
+| --------- | ---- | -------- | ----- |
+| stationId | Integer | No | stationId 0 is reserved for representing the entire checklist period, and stationId 1 or greater represent linked survey events within the checklist (e.g. point counts) |
+| startTime | Float | Yes | Start time of the observation. For stationId 0, this is the start of the entire checklist |
+| effortType | String | Yes | One of: incidental, traveling, stationary or area search |
+| duration | Float | Yes | Duration in hours, required except for incidental protocols. For stationId 0, this is the duration of the entire checklist INCLUDING sub stations |
+| distance | Float | Yes | Distance in km for travelling protocols. For stationId 0, this is the distance of the entire checklist INCLUDING sub stations |
+| area | Float | Yes | Area in ha for area search protocols. For stationId 0, this is the area of the entire checklist INCLUDING sub stations |
+| subProtocolId | Integer | No | Identifier for the station sub-protocol. Ignored when stationId = 0 |
+| latitude | Float | Yes | Decimal latitiude at the start of the station |
+| longitude | Float | Yes | Degrees longitude at the start of the station |
+| locId | Integer | No | Existing location ID when submitting from an existing site, or resubmitting an existing checklist |
+| locName | String | Yes | Name of the location. names of public sites should not be editable |
+| comments | String | No | General comments for the station |
+| customVars | JSON Array | No | Vector of custom variables, unique to the protocol |
+| species | JSON Array | Yes | A vector of JSON objects of type SPECIES_JSON |
+
+**The SPECIES_JSON structure:**
+
+| Attribute | Type | Required | Notes |
+| --------- | ---- | -------- | ----- |
+| speciesId | Integer | Yes | numeric NatureCounts taxononic ID |
+| recordId | Integer | No | existing recordId provided by the API when resubmitting an existing checklist, blank for new submissions |
+| breedingEvid | Integer | Yes | numeric ID for the breeding evidence code. Users should only see the associated alpha breeding code, but the API requires the numeric identifier |
+| counts | JSON Array | Yes | A vector of counts matching the protocol requirement |
+| comments | String | No | additional species comments provided by the user |
+| distanceToBird | Float | No | Not yet applicable: for protocols that support multiple records per species in the same station |
+| bearingToBird | Float | No | Not yet applicable: for protocols that support multiple records per species in the same station |
+| positionsLongitude | JSON Array | No | Not yet applicable: list of coordinates representing individual longitude of birds of a given species |
+| positionsLatitude | JSON Array | No | Not yet applicable: list of coordinates representing individual latitude of birds of a given species |
+| flag | Integer | Yes | Code for the type of flag used to validate the data based on the species lists, indicating which observations should be documented<sup>1</sup> |
+
+
+<div style="padding: 15px">
+<sup>1</sup> Values for SPECIES_JSON.flag:
+
+<ul>
+	<li>0 - common bird, no flag required</li>
+	<li>1 - rare species based on eBird filters. Species missing from filter or maximum set a 0 for the date.</li>
+	<li>2 - high count based on eBird filters. Observation where the actual count exceeds the filter for the date.</li>
+	<li>3 - rare breeder. Observation reported with a breeding evidence code (H or higher) should be documented.</li>
+</u>
+</div>
+
+
+**Important notes:**
+
+There is an important distinction between primary and children survey events. When the protocol allows a subProtocolId, additional events 
+(e.g. point counts) can be submitted within the main event. The primary event (called station) always gets assigned a stationId = 0. Linked events,
+identified with a subProtocolId, will have stationId of 1 or greater (each should be unique, and assigned in the order of creation by the user).
+
+When protocols allow sub-protocols, they may have a stationId 0 or not (as determined by the protocol field called hasStation0). In cases where there
+is both a stationId 0 and sub-protocols, the station 0 would contain all observations NOT already tabulated in other stations (so the total of all
+count values in all stations including station 0 would provide the actual total number of birds seen). However, for all of the other fields
+(e.g. duration and distance), the values assigned to station 0 would apply to the entire checklist.
+
+In cases where there is no station 0 allowed in the protocol, this indicates that the participant would only report observations at individual points,
+but not those made in between. E.g. a roadside survey with 5 minute points every km. In those cases, the survey would start immediately at station 1,
+and rather than return to the main survey form (station 0) when the station is completed, the user would have to option of ending the checklist 
+or adding an additional station.
+
+Preferably, when looking at station 0, the tally of observations reported on other stations would be visible to the user but not editable.
+
+For the moment, each speciesId within a station should be unique. I.E., only one record per species within a station. In the future, some protocols
+will need to support multiple entries per species (e.g. one record per individual bird), as well as additional fields (e.g. distance to bird, bearing).
+
+There will be additional variables that we may want to support in the future, but that are not relevant to protocols identified as priorities.
+
+Stations:
+	roadside (whether the survey was conducted on a roadside)
+	trafficCount (numbers of vehicles counted during the survey event)
+	noiseLevel (code representing the background noise level)
+	distanceFromStart (distance in km between the start of the checklist and the current station)
+
