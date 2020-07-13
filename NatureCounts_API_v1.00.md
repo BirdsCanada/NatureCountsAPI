@@ -660,13 +660,6 @@ The response to an invalid checklist submisson has not yet been defined......
 | flag | Integer | Yes | Code for the type of flag used to validate the data based on the species lists, indicating which observations should be documented<sup>1</sup> |
 | customVars | JSON Array | No | Vector of custom variables of type CUSTOM_JSON (for levels station, start and end), unique to the protocol |
 
-**The CUSTOM_JSON structure:**
-
-| Attribute | Type | Required | Notes |
-| --------- | ---- | -------- | ----- |
-| customId | String | Yes | name of the custom variable defined by the protocol |
-| value | String | Yes | value of the custom variable |
-
 <div style="padding: 15px">
 <sup>1</sup> Values for SPECIES_JSON.flag:
 
@@ -677,6 +670,13 @@ The response to an invalid checklist submisson has not yet been defined......
 	<li>3 - rare breeder. Observation reported with a breeding evidence code (H or higher) should be documented.</li>
 </u>
 </div>
+
+**The CUSTOM_JSON structure:**
+
+| Attribute | Type | Required | Notes |
+| --------- | ---- | -------- | ----- |
+| customId | String | Yes | name of the custom variable defined by the protocol |
+| value | String | Yes | value of the custom variable |
 
 
 **Important notes:**
