@@ -640,7 +640,7 @@ The response to an invalid checklist submisson has not yet been defined......
 | locId | Integer | No | Existing location ID when submitting from an existing site, or resubmitting an existing checklist |
 | locName | String | Yes | Name of the location. names of public sites should not be editable |
 | comments | String | No | General comments for the station |
-| customVars | JSON Array | No | Vector of custom variables of type CUSTOM_JSON, unique to the protocol |
+| customVars | JSON Array | No | Vector of custom variables of type CUSTOM_JSON (for levels station, start and end), unique to the protocol |
 | species | JSON Array | Yes | A vector of JSON objects of type SPECIES_JSON |
 
 **The SPECIES_JSON structure:**
@@ -658,12 +658,13 @@ The response to an invalid checklist submisson has not yet been defined......
 | positionsLongitude | JSON Array | No | Not yet applicable: list of coordinates representing individual longitude of birds of a given species |
 | positionsLatitude | JSON Array | No | Not yet applicable: list of coordinates representing individual latitude of birds of a given species |
 | flag | Integer | Yes | Code for the type of flag used to validate the data based on the species lists, indicating which observations should be documented<sup>1</sup> |
+| customVars | JSON Array | No | Vector of custom variables of type CUSTOM_JSON (for levels station, start and end), unique to the protocol |
 
 **The CUSTOM_JSON structure:**
 
 | Attribute | Type | Required | Notes |
 | --------- | ---- | -------- | ----- |
-| name | String | Yes | name of the custom variable defined by the protocol |
+| custom_id | String | Yes | name of the custom variable defined by the protocol |
 | value | String | Yes | value of the custom variable |
 
 <div style="padding: 15px">
