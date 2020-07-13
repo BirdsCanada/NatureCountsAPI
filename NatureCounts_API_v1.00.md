@@ -631,7 +631,7 @@ The response to an invalid checklist submisson has not yet been defined......
 | stationId | Integer | No | stationId 0 is reserved for representing the entire checklist period, and stationId 1 or greater represent linked survey events within the checklist (e.g. point counts) |
 | startTime | Float | Yes | Start time of the observation. For stationId 0, this is the start of the entire checklist |
 | effortType | String | Yes | One of: incidental, traveling, stationary or area search |
-| duration | Float | Yes | Duration in hours, required except for incidental protocols. For stationId 0, this is the duration of the entire checklist INCLUDING sub stations |
+| duration | Float | Yes | Duration in minutes, required except for incidental protocols. For stationId 0, this is the duration of the entire checklist INCLUDING sub stations |
 | distance | Float | Yes | Distance in km for travelling protocols. For stationId 0, this is the distance of the entire checklist INCLUDING sub stations |
 | area | Float | Yes | Area in ha for area search protocols. For stationId 0, this is the area of the entire checklist INCLUDING sub stations |
 | subProtocolId | Integer | No | Identifier for the station sub-protocol. Ignored when stationId = 0 |
@@ -640,7 +640,7 @@ The response to an invalid checklist submisson has not yet been defined......
 | locId | Integer | No | Existing location ID when submitting from an existing site, or resubmitting an existing checklist |
 | locName | String | Yes | Name of the location. names of public sites should not be editable |
 | comments | String | No | General comments for the station |
-| customVars | JSON Array | No | Vector of custom variables, unique to the protocol |
+| customVars | JSON Array | No | Vector of custom variables of type CUSTOM_JSON, unique to the protocol |
 | species | JSON Array | Yes | A vector of JSON objects of type SPECIES_JSON |
 
 **The SPECIES_JSON structure:**
@@ -654,10 +654,17 @@ The response to an invalid checklist submisson has not yet been defined......
 | comments | String | No | additional species comments provided by the user |
 | distanceToBird | Float | No | Not yet applicable: for protocols that support multiple records per species in the same station |
 | bearingToBird | Float | No | Not yet applicable: for protocols that support multiple records per species in the same station |
+| time | Float | No | Time in minutes from the start of the survey, if supported by the protocol |
 | positionsLongitude | JSON Array | No | Not yet applicable: list of coordinates representing individual longitude of birds of a given species |
 | positionsLatitude | JSON Array | No | Not yet applicable: list of coordinates representing individual latitude of birds of a given species |
 | flag | Integer | Yes | Code for the type of flag used to validate the data based on the species lists, indicating which observations should be documented<sup>1</sup> |
 
+**The CUSTOM_JSON structure:**
+
+| Attribute | Type | Required | Notes |
+| --------- | ---- | -------- | ----- |
+| name | String | Yes | name of the custom variable defined by the protocol |
+| value | String | Yes | value of the custom variable |
 
 <div style="padding: 15px">
 <sup>1</sup> Values for SPECIES_JSON.flag:
