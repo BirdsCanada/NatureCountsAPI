@@ -664,7 +664,7 @@ The response to an invalid checklist submisson has not yet been defined......
 
 | Attribute | Type | Required | Notes |
 | --------- | ---- | -------- | ----- |
-| custom_id | String | Yes | name of the custom variable defined by the protocol |
+| customId | String | Yes | name of the custom variable defined by the protocol |
 | value | String | Yes | value of the custom variable |
 
 <div style="padding: 15px">
