@@ -613,6 +613,7 @@ The response to an invalid checklist submisson has not yet been defined......
 | track | JSON Array | No | A vector of JSON objects of type TRACK_JSON (when the track feature is enabled) |
 | isComplete | Boolean | No | Set to true if checklist reports every species detected |
 | stations | JSON Array | Yes | A vector of JSON objects of type STATION_JSON |
+| mobileId | Integer? | No |  |
 
 **The TRACK_JSON structure:**
 
@@ -637,6 +638,9 @@ The response to an invalid checklist submisson has not yet been defined......
 | subProtocolId | Integer | No | Identifier for the station sub-protocol. Ignored when stationId = 0 |
 | latitude | Float | Yes | Decimal latitiude at the start of the station |
 | longitude | Float | Yes | Degrees longitude at the start of the station |
+| locationAccuracyRange | Float | No | Location accuracy (in meters) provided by the GPS |
+| locationSelectionTime | Long | No | Unix Timestamp indicating when the site location was selected by the user |
+| locationAutoSelected | Boolean | No | Whether the location coordinates were derived from the GPS (true), or from the map (false) |
 | locId | Integer | No | Existing location ID when submitting from an existing site, or resubmitting an existing checklist |
 | locName | String | Yes | Name of the location. names of public sites should not be editable |
 | comments | String | No | General comments for the station |
@@ -652,8 +656,11 @@ The response to an invalid checklist submisson has not yet been defined......
 | breedingEvid | Integer | Yes | numeric ID for the breeding evidence code. Users should only see the associated alpha breeding code, but the API requires the numeric identifier |
 | counts | JSON Array | Yes | A vector of counts matching the protocol requirement |
 | comments | String | No | additional species comments provided by the user |
-| distanceToBird | Float | No | Not yet applicable: for protocols that support multiple records per species in the same station |
-| bearingToBird | Float | No | Not yet applicable: for protocols that support multiple records per species in the same station |
+| distance | Float | No | Distance (in meter) between the bird and the observer. Only applicable to protocols supporting multiple records per species. |
+| distanceToBird | Float | No | DEPRECATED. use "distance". Distance (in meter) between the bird and the observer. Only applicable to protocols supporting multiple records per species. |
+| direction | String | No | Cardinal direction (e.g. N, NW, SE, etc.) of the bird relative to the observer. Only applicable to protocols supporting multiple records per species. |
+| bearing | Integer | No | Bearing (in degrees) of the bird position relative to the observer. Only applicable to protocols supporting multiple records per species. |
+| bearingToBird | Integer | No | DEPRECATED. Use "bearing". Bearing (in degrees) of the bird position relative to the observer. Only applicable to protocols supporting multiple records per species. |
 | time | Float | No | Time in minutes from the start of the survey, if supported by the protocol |
 | positionsLongitude | JSON Array | No | Not yet applicable: list of coordinates representing individual longitude of birds of a given species |
 | positionsLatitude | JSON Array | No | Not yet applicable: list of coordinates representing individual latitude of birds of a given species |
